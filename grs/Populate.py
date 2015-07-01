@@ -68,7 +68,7 @@ class Populate():
 
     def clean_subdirs(self, dirpath):
         path = os.path.join(self.portage_configroot, dirpath)
-        if os.path.isdir(path)
+        if os.path.isdir(path):
             uid = os.stat(path).st_uid
             gid = os.stat(path).st_gid
             mode = os.stat(path).st_mode
