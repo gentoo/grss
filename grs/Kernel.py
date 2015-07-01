@@ -51,7 +51,7 @@ class Kernel():
 
         # Remove any old image directory and create a boot directory
         # wich genkernel assumes is present.
-        shutil.rmtree(image_dir)
+        shutil.rmtree(image_dir, ignore_errors=True)
         os.makedirs(boot_dir, mode=0o755, exist_ok=True)
 
         cmd = 'emerge --nodeps -1n %s' % pkg_name
