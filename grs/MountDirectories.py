@@ -80,7 +80,7 @@ class MountDirectories():
                 source_directory = mount
                 target_directory = mount
             elif isinstance(mount, list):
-                # Here source_directory is assumet to be an abspath
+                # Here source_directory is assumed to be an abspath
                 # and we create it if it doesn't exist
                 source_directory = mount[0]
                 os.makedirs(source_directory, mode=0o755, exist_ok=True)
