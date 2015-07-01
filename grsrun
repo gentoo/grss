@@ -1,0 +1,72 @@
+#!/usr/bin/env python
+
+import os
+import re
+import signal
+import sys
+import time
+
+from grs import CONST
+from grs import Execute
+from grs import Interpret
+
+from getopt import getopt, GetoptError
+
+
+def usage(rc=1):
+    usage = """
+usage: grsrun [-m|-u|-h]
+
+flags: -m  Mock run.  Don't really execute.
+     : -u  Update run.
+     : -h  print this help file
+"""
+    print(usage)
+    sys.exit(rc)
+
+
+
+def main():
+    try:
+        opts, x = getopt(sys.argv[1:], 'muh')
+    except GetoptError as e:
+        usage()
+
+    mock_run = False
+    update_run = False
+    for o, a in opts:
+        if o == '-h':
+            usage(0)
+        elif o == '-m':
+            mock_run = True
+        elif o == '-u':
+            update_run = True
+
+    cgroupdir      = '/sys/fs/cgroup'
+    grs_cgroup     = 'grs'
+    grs_cgroupdir  = os.path.join(cgroupdir, grs_cgroup)
+
+    os.makedirs(grs_cgroupdir, mode=0o555, exist_ok=True)
+    if not os.path.ismount(grs_cgroupdir):
+        cmd = 'mount -t cgroup -o none,name=grs grs %s' % grs_cgroupdir
+        Execute(cmd)
+
+    count = 0
+    for name in CONST.names:
+        if not os.fork():
+            subcgroup    = 'run-%s' % name
+            subcgroupdir = os.path.join(grs_cgroupdir, subcgroup)
+            os.makedirs(subcgroupdir, exist_ok=True)
+
+            cmd = 'cgclassify -g name=%s:/%s %d' % (grs_cgroup, subcgroup, os.getpid())
+            Execute(cmd)
+
+            mr = Interpret(CONST.pidfiles[count], run_number=count, subcgroupdir=subcgroupdir, \
+                mock_run=mock_run, update_run=update_run)
+            mr.start()
+            sys.exit(0)
+        count = count + 1
+
+
+if __name__ == '__main__':
+    main()

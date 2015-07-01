@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+import os
+
+from grs import CONST
+from grs import WorldConf
+
+def main():
+    WorldConf.clean()
+    try:
+        os.remove(CONST.PORTAGE_DIRTYFILE)
+    except (FileNotFoundError, IsADirectoryError):
+        pass
+
+if __name__ == "__main__":
+    main()

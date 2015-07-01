@@ -1,0 +1,142 @@
+#!/usr/bin/env python
+
+import portage
+import getopt, re
+import os, shlex, shutil, sys, subprocess
+from copy import deepcopy
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], 'ea:pv')
+except getopt.GetoptError as e:
+    print(e)
+    sys.exit(1)
+
+arch = None
+emerge = False
+pause = False
+verbose = False
+for o, a in opts:
+    if o == '-e':
+        emerge = True
+    elif o == '-a':
+        arch = a
+    elif o == '-p':
+        pause = True
+    elif o == '-v':
+        verbose = True
+    else:
+        print('option %s unknown' % o)
+if not arch:
+    print('no arch privided')
+    sys.exit(1)
+if not verbose and pause:
+    print('can\'t pause without verbose')
+    sys.exit(1)
+
+portdb = portage.db["/"]["porttree"].dbapi
+gentoo_repo_location = portdb.repositories["gentoo"].location
+
+cp_all = []
+if os.path.isfile('desp-1.log'):
+    if verbose: print('skipping desp-1.log\n', flush=True)
+    with open('desp-1.log', 'r') as f:
+        cp_all = [cp.strip() for cp in f.readlines()]
+    if pause: input('pause\n')
+else:
+    if verbose: print('All packages:', flush=True)
+    for cp in portdb.cp_all(trees=[gentoo_repo_location]):
+            if not cp in cp_all:
+                cp_all.append(cp)
+                if verbose: print(cp, flush=True)
+    with open('desp-1.log', 'w') as f:
+        for cp in cp_all:
+            f.write('%s\n' % cp)
+    if verbose: print('\n', flush=True)
+    if pause: input('pause\n')
+
+if os.path.isfile('deps-2.log'):
+    if verbose: print('skipping deps-2.log\n', flush=True)
+    with open('deps-2.log', 'r') as f:
+        cp_all = [cp.strip() for cp in f.readlines()]
+    if pause: input('pause\n')
+else:
+    if verbose: print('Unstable packages:', flush=True)
+    cp_copy = deepcopy(cp_all)
+    for cp in cp_copy:
+        for cpv in portdb.cp_list(cp, mytree=gentoo_repo_location):
+            keywords = portdb.aux_get(cpv, ["KEYWORDS"])[0]
+            if arch in re.split('\s+', keywords):
+                break
+        else:
+            cp_all.remove(cp)
+            if verbose: print(cp, flush=True)
+    with open('deps-2.log', 'w') as f:
+        for cp in cp_all:
+            f.write('%s\n' % cp)
+    if verbose: print('\n', flush=True)
+    if pause: input('pause\n')
+
+if os.path.isfile('deps-3.log'):
+    if verbose: print('skipping deps-3.log\n', flush=True)
+    with open('deps-3.log', 'r') as f:
+        cp_all = [cp.strip() for cp in f.readlines()]
+    if pause: input('pause\n')
+else:
+    if verbose: print('Dependee packages:', flush=True)
+    cp_copy = deepcopy(cp_all)
+    for cp in cp_copy:
+        for cpv in portdb.cp_list(cp, mytree=gentoo_repo_location):
+            deps = portdb.aux_get(cpv, ["DEPEND", "RDEPEND"], myrepo="gentoo")
+            deps = portage.dep.use_reduce(deps, matchall=True, flat=True)
+            for d in deps:
+                try:
+                    cp = portage.dep.Atom(d).cp
+                    cp_all.remove(cp)
+                    if verbose: print(cp, flush=True)
+                except portage.exception.InvalidAtom:
+                    pass
+                except ValueError:
+                    pass
+    with open('deps-3.log', 'w') as f:
+        for cp in cp_all:
+            f.write('%s\n' % cp)
+    if verbose: print('\n', flush=True)
+    if pause: input('pause\n')
+if not emerge:
+    sys.exit(0)
+
+if os.path.isfile('deps-4.log'):
+    if verbose: print('skipping deps-4.log\n', flush=True)
+    with open('deps-4.log', 'r') as f:
+        cp_all = [cp.strip() for cp in f.readlines()]
+    if pause: input('pause\n')
+else:
+    if verbose: print('Building dependant packages:', flush=True)
+    cp_copy = deepcopy(cp_all)
+    for cp in cp_copy:
+        outdir = os.path.join('packages', cp)
+        logfile = os.path.join(outdir, 'emerge.log')
+        try:
+            os.makedirs(outdir)
+        except OSError:
+            pass
+        cmd = 'emerge -vp %s' % cp
+        args = shlex.split(cmd)
+        with open(logfile, encoding='utf-8', mode='w') as f:
+            proc = subprocess.Popen(args, stdout=f, stderr=f)
+            try:
+                proc.wait(600)
+            except subprocess.TimeoutExpired:
+                f.write('TIME OUT\n')
+        with open(logfile, encoding='utf-8', mode='r') as f:
+            lines=f.readlines()
+        if re.search('^Total: ', lines[-1], re.M | re.S):
+            os.remove(logfile)
+        else:
+            cp_all.remove(cp)
+            if verbose: print(cp, flush=True)
+    with open('deps-4.log', 'w') as f:
+        for cp in cp_all:
+            f.write('%s\n' % cp)
+    if verbose: print('\n', flush=True)
+    if pause: input('pause\n')

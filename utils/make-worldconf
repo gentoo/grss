@@ -1,0 +1,138 @@
+#!/usr/bin/env python
+
+import configparser
+import copy
+import os
+import re
+import sys
+
+from _emerge.main import parse_opts
+from _emerge.actions import load_emerge_config, create_depgraph_params
+from _emerge.depgraph import backtrack_depgraph
+
+PORTAGE_CONFIGDIR = '/etc/portage'
+
+
+def useflags(config, p):
+    # Get all IUSE, enabled USE and EXPAND_HIDDEN flags.
+    try:
+        iuse = list(p.iuse.all)
+        use = list(p.use.enabled)
+        expand_hidden = list(p.use._expand_hidden)
+    except AttributeError:
+        return
+    except TypeError:
+        return
+
+    # Remove any EXPAND_HIDDEN flags from IUSE flags
+    my_iuse = copy.deepcopy(iuse)
+    for u in iuse:
+        for e in expand_hidden:
+            while re.match(e, u):
+                try:
+                    my_iuse.remove(u)
+                except ValueError:
+                    break
+
+    # Remove any EXPAND_HIDDEN flags from the enabled USE flags
+    my_use = copy.deepcopy(use)
+    for u in use:
+        for e in expand_hidden:
+            while re.match(e, u):
+                try:
+                    my_use.remove(u)
+                except ValueError:
+                    break
+
+    # Remove the arch flag - this needs to be generalized
+    my_use.remove('amd64')
+
+    # Go through all the IUSE flags and put a - in front
+    # of all the disabled USE flags.
+    flags = []
+    for i in my_iuse:
+        if i in my_use:
+            flags.append(i)
+        else:
+            flags.append('-%s' % i)
+
+    # Insert nicely sorted flags.
+    if len(flags) > 0:
+        flags.sort()
+        config[p.slot_atom]['package.use/%s' % re.sub('[/:]', '_', p.slot_atom)] = \
+            p.slot_atom + ' ' + ' '.join(flags)
+
+
+def keywords(config, p):
+    # Stable means there is no keyword is needed.
+    keyword = None
+    try:
+        if not p.stable:
+            keyword = "??" # Something went wrong!
+            if p.get_keyword_mask() == 'missing':
+                keyword = '**'
+            if p.get_keyword_mask() == 'unstable':
+                keyword = '~amd64'
+    except AttributeError:
+        pass
+    if keyword:
+        config[p.slot_atom]['package.accept_keywords/%s' % re.sub('[/:]', '_', p.slot_atom)] = \
+            '=%s %s' % (p.cpv, keyword)
+
+
+def envvars(config, p):
+    try:
+        fpath = os.path.join(PORTAGE_CONFIGDIR, 'package.env')
+        with open(fpath, 'r') as g:
+            for l in g.readlines():
+                # This matching needs to be made more strick.
+                if re.search('%s' % re.escape(p.cpv_split[1]), l):
+                    config[p.slot_atom]['+package.env'] = '%s %s' % (p.slot_atom,
+                        re.sub('[/:]', '_', p.slot_atom))
+                    m = re.search('(\S+)\s+(\S+)', l)
+                    env_file = os.path.join(PORTAGE_CONFIGDIR, 'env')
+                    env_file = os.path.join(env_file, m.group(2))
+                    with open(env_file, 'r') as h:
+                        config[p.slot_atom]['env/%s' % re.sub('[/:]', '_', p.slot_atom)] = h.read()
+    except FileNotFoundError:
+        pass
+
+
+def main():
+    args = sys.argv[1:]
+    if len(args) == 0:
+        args =  [ '-e', '@world' ]
+
+    myaction, myopts, myfiles = parse_opts(args, silent=True)
+    emerge_config = load_emerge_config(action=myaction, args=myfiles, opts=myopts)
+    mysettings, mytrees = emerge_config.target_config.settings, emerge_config.trees
+    myparams = create_depgraph_params(myopts, myaction)
+    success, mydepgraph, favorites = backtrack_depgraph(mysettings, mytrees, myopts, \
+        myparams, myaction, myfiles, spinner=None)
+
+    config = configparser.RawConfigParser(delimiters=':', allow_no_value=True, comment_prefixes=None)
+
+    for p in mydepgraph.altlist():
+        # Prepare a section for this atom
+        try:
+            config[p.slot_atom] = {}
+        except AttributeError:
+            continue
+
+        # Populate package.use
+        useflags(config, p)
+
+        # Populate package.accept_keywords
+        keywords(config, p)
+
+        # Populate package.env and env/*
+        envvars(config, p)
+
+        if config[p.slot_atom] == {}:
+            config.remove_section(p.slot_atom)
+
+    with open('world.conf', 'w') as configfile:
+        config.write(configfile)
+
+if __name__ == "__main__":
+    main()

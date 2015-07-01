@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+
+from grs import CONST
+from grs import WorldConf
+
+def main():
+    open(CONST.PORTAGE_DIRTYFILE, 'a').close()
+    WorldConf.install()
+
+if __name__ == "__main__":
+    main()

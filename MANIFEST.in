@@ -1,0 +1,7 @@
+include LICENSE
+include README
+include grsrun
+include grsup
+include install-worldconf
+include systems.conf
+include grs/*
