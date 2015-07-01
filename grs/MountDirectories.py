@@ -83,8 +83,7 @@ class MountDirectories():
                 # Here source_directory is assumet to be an abspath
                 # and we create it if it doesn't exist
                 source_directory = mount[0]
-                if not os.path.isdir(source_directory):
-                    os.makedirs(source_directory)
+                os.makedirs(source_directory, mode=0o755, exist_ok=True)
                 target_directory = mount[1]
             elif isinstance(mount, dict):
                 tmp = list(mount.values())
@@ -94,8 +93,7 @@ class MountDirectories():
                 tmp = list(mount.keys())
                 target_directory = tmp[0]
             target_directory = os.path.join(self.portage_configroot, target_directory)
-            if not os.path.isdir(target_directory):
-                os.makedirs(target_directory)
+            os.makedirs(target_directory, mode=0o755, exist_ok=True)
             if isinstance(mount, str):
                 cmd = 'mount --bind /%s %s' % (source_directory, target_directory)
             elif isinstance(mount, list):

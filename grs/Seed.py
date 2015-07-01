@@ -50,8 +50,9 @@ class Seed():
             if os.path.isdir(directory):
                 shutil.move(directory, '%s.0' % directory)
             # Now that all prevous directory are out of the way,
-            # create a new empty directory
-            os.makedirs(directory)
+            # create a new empty directory.  Fail if the directory
+            # is still around.
+            os.makedirs(directory, mode=0o755, exist_ok=False)
 
         # Download a stage tarball if we don't have one
         if not os.path.isfile(self.filepath):

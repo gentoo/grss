@@ -11,10 +11,7 @@ class Log():
 
     def __init__(self, logfile = CONST.LOGFILE):
         self.logfile = logfile
-        try:
-            os.makedirs(os.path.dirname(self.logfile))
-        except FileExistsError:
-            pass
+        os.makedirs(os.path.dirname(self.logfile), exist_ok=True)
         open(self.logfile, 'a').close()
 
 

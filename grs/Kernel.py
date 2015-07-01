@@ -96,7 +96,8 @@ class Kernel():
 
         cwd = os.getcwd()
         os.chdir(image_dir)
-        os.unlink(tarball_path)
+        if os.path.isfile(tarball_path):
+            os.unlink(tarball_path)
         cmd = 'tar -Jcf %s .' % tarball_path
         Execute(cmd, timeout=600, logfile=self.logfile)
         os.chdir(cwd)

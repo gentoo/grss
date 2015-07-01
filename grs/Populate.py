@@ -34,10 +34,7 @@ class Populate():
         Execute(cmd, timeout=60, logfile = self. logfile)
 
         # Add any extra files
-        try:
-            os.makedirs(self.etc)
-        except FileExistsError:
-            pass
+        os.makedirs(self.etc, mode=0o755, exist_ok=True)
         with open(self.resolv_conf, 'w') as f:
             f.write('nameserver %s' % self.nameserver)
 
