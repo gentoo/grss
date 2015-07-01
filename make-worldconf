@@ -6,11 +6,11 @@ import os
 import re
 import sys
 
+from grs import CONST
+
 from _emerge.main import parse_opts
 from _emerge.actions import load_emerge_config, create_depgraph_params
 from _emerge.depgraph import backtrack_depgraph
-
-PORTAGE_CONFIGDIR = '/etc/portage'
 
 
 def useflags(config, p):
@@ -18,33 +18,40 @@ def useflags(config, p):
     try:
         iuse = list(p.iuse.all)
         use = list(p.use.enabled)
-        expand_hidden = list(p.use._expand_hidden)
+        # expand = list(p.use.expand)
+        expand_hidden = list(p.use.expand_hidden)
     except AttributeError:
         return
     except TypeError:
         return
 
-    # Remove any EXPAND_HIDDEN flags from IUSE flags
+    # We only include select USE_EXPAND flags. Note becaue of how we match 'abi_',
+    # for example, will match abi_ppc, abi_mips etc.  Hopefully this will not lead
+    # to any false hits.
+    expand = [ 'kernel_', 'elibc_', 'userland_', 'abi_', 'linguas_', 'python_' ]
+
+    # Remove any selected USE_EXPAND and any EXPAND_HIDDEN flags from IUSE flags
     my_iuse = copy.deepcopy(iuse)
     for u in iuse:
-        for e in expand_hidden:
+        for e in expand + expand_hidden:
             while re.match(e, u):
                 try:
                     my_iuse.remove(u)
                 except ValueError:
                     break
 
-    # Remove any EXPAND_HIDDEN flags from the enabled USE flags
+    # Remove the same flags from the enabled USE flags
     my_use = copy.deepcopy(use)
     for u in use:
-        for e in expand_hidden:
+        for e in expand + expand_hidden:
             while re.match(e, u):
                 try:
                     my_use.remove(u)
                 except ValueError:
                     break
 
-    # Remove the arch flag - this needs to be generalized
+    # Remove the arch flag.
+    # TODO: this needs to be generalized.
     my_use.remove('amd64')
 
     # Go through all the IUSE flags and put a - in front
@@ -72,6 +79,7 @@ def keywords(config, p):
             if p.get_keyword_mask() == 'missing':
                 keyword = '**'
             if p.get_keyword_mask() == 'unstable':
+                # This needs to be generalized
                 keyword = '~amd64'
     except AttributeError:
         pass
@@ -82,7 +90,7 @@ def keywords(config, p):
 
 def envvars(config, p):
     try:
-        fpath = os.path.join(PORTAGE_CONFIGDIR, 'package.env')
+        fpath = os.path.join(CONST.PORTAGE_CONFIGDIR, 'package.env')
         with open(fpath, 'r') as g:
             for l in g.readlines():
                 # This matching needs to be made more strick.
@@ -90,7 +98,7 @@ def envvars(config, p):
                     config[p.slot_atom]['+package.env'] = '%s %s' % (p.slot_atom,
                         re.sub('[/:]', '_', p.slot_atom))
                     m = re.search('(\S+)\s+(\S+)', l)
-                    env_file = os.path.join(PORTAGE_CONFIGDIR, 'env')
+                    env_file = os.path.join(CONST.PORTAGE_CONFIGDIR, 'env')
                     env_file = os.path.join(env_file, m.group(2))
                     with open(env_file, 'r') as h:
                         config[p.slot_atom]['env/%s' % re.sub('[/:]', '_', p.slot_atom)] = h.read()
