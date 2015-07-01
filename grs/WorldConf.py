@@ -14,7 +14,7 @@ class WorldConf():
     """
 
     @staticmethod
-    def conf2file(config, s, portage_dir):
+    def conf2file(config, s, portage_confdir):
         """ doc here
             more doc
         """
@@ -23,7 +23,7 @@ class WorldConf():
                 # a '+' at the beginging means append to the file
                 undecorated_f = re.sub('^\+', '', f)
 
-                filepath = os.path.join(portage_dir, undecorated_f)
+                filepath = os.path.join(portage_confdir, undecorated_f)
                 dirpath  = os.path.dirname(filepath)
                 os.makedirs(dirpath, mode=0o755, exist_ok=True)
                 if f == undecorated_f or not os.path.exists(filepath):
@@ -49,7 +49,7 @@ class WorldConf():
         config.read(CONST.WORLD_CONFIG)
 
         for s in config.sections():
-            WorldConf.conf2file(config, s, portage_dir=CONST.PORTAGE_CONFIGDIR)
+            WorldConf.conf2file(config, s, portage_confdir=CONST.PORTAGE_CONFIGDIR)
 
 
     @staticmethod
