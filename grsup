@@ -21,7 +21,7 @@ from portage.exception import IsADirectory, ParseError, PermissionDenied
 from portage import setting
 
 
-def install_kernel(version = 'latest', logfile):
+def install_kernel(version = 'latest', logfile = CONST.LOGFILE):
     """ doc here
         more doc
     """
