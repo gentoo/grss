@@ -109,92 +109,88 @@ class Interpret(Daemon):
             stampit(progress)
 
         build_script = os.path.join(libdir, 'build')
-        try:
-            with open(build_script, 'r') as s:
-                line_number = 0
-                for l in s.readlines():
-                    line_number += 1
+        with open(build_script, 'r') as s:
+            line_number = 0
+            for l in s.readlines():
+                line_number += 1
 
-                    # For a release run, execute every line of the build script.
-                    # For an update run, exexute only lines with a leading +.
-                    ignore_stamp = False
-                    m = re.search('^(\+)(.*)$', l)
-                    if m:
-                        # There is a leading +, so remove it and skip if doing an update run
-                        ignore_stamp = self.update_run
-                        l = m.group(2)
-                    else:
-                        # There is no leading +, so skip if this is an update run
-                        if self.update_run:
-                            continue
-
-                    progress = os.path.join(tmpdir, '.completed_%02d' % line_number)
-                    if os.path.exists(progress) and not ignore_stamp:
+                # For a release run, execute every line of the build script.
+                # For an update run, exexute only lines with a leading +.
+                ignore_stamp = False
+                m = re.search('^(\+)(.*)$', l)
+                if m:
+                    # There is a leading +, so remove it and skip if doing an update run
+                    ignore_stamp = self.update_run
+                    l = m.group(2)
+                else:
+                    # There is no leading +, so skip if this is an update run
+                    if self.update_run:
                         continue
 
-                    try:
-                        m = re.search('(\S+)\s+(\S+)', l)
-                        verb = m.group(1)
-                        obj  = m.group(2)
-                    except AttributeError:
-                        verb = l.strip()
-                        obj = None
+                progress = os.path.join(tmpdir, '.completed_%02d' % line_number)
+                if os.path.exists(progress) and not ignore_stamp:
+                    continue
 
-                    if verb == '':
+                try:
+                    m = re.search('(\S+)\s+(\S+)', l)
+                    verb = m.group(1)
+                    obj  = m.group(2)
+                except AttributeError:
+                    verb = l.strip()
+                    obj = None
+
+                if verb == '':
+                    stampit(progress)
+                    continue
+                if verb == 'log':
+                    if smartlog(l, obj):
                         stampit(progress)
                         continue
-                    if verb == 'log':
-                        if smartlog(l, obj):
-                            stampit(progress)
-                            continue
-                        if obj == 'stamp':
-                            lo.log('='*80)
-                        else:
-                            lo.log(obj)
-                    elif verb == 'mount':
-                        if smartlog(l, obj, False):
-                            stampit(progress)
-                            continue
-                        md.mount_all()
-                    elif verb == 'unmount':
-                        if smartlog(l, obj, False):
-                            stampit(progress)
-                            continue
-                        md.umount_all()
-                    elif verb == 'populate':
-                        if smartlog(l, obj):
-                            stampit(progress)
-                            continue
-                        po.populate(cycle=int(obj))
-                    elif verb == 'runscript':
-                        if smartlog(l, obj):
-                            stampit(progress)
-                            continue
-                        ru.runscript(obj)
-                    elif verb == 'clean':
-                        if smartlog(l, obj, False):
-                            stampit(progress)
-                            continue
-                        po.clean()
-                    elif verb == 'kernel':
-                        if smartlog(l, obj, False):
-                            stampit(progress)
-                            continue
-                        ke.kernel()
-                    elif verb == 'tarit':
-                        if smartlog(l, obj, False):
-                            stampit(progress)
-                            continue
-                        bi.tarit()
-                    elif verb == 'hashit':
-                        if smartlog(l, obj, False):
-                            stampit(progress)
-                            continue
-                        bi.hashit()
+                    if obj == 'stamp':
+                        lo.log('='*80)
                     else:
-                        lo.log('Bad command: %s' % l)
+                        lo.log(obj)
+                elif verb == 'mount':
+                    if smartlog(l, obj, False):
+                        stampit(progress)
+                        continue
+                    md.mount_all()
+                elif verb == 'unmount':
+                    if smartlog(l, obj, False):
+                        stampit(progress)
+                        continue
+                    md.umount_all()
+                elif verb == 'populate':
+                    if smartlog(l, obj):
+                        stampit(progress)
+                        continue
+                    po.populate(cycle=int(obj))
+                elif verb == 'runscript':
+                    if smartlog(l, obj):
+                        stampit(progress)
+                        continue
+                    ru.runscript(obj)
+                elif verb == 'clean':
+                    if smartlog(l, obj, False):
+                        stampit(progress)
+                        continue
+                    po.clean()
+                elif verb == 'kernel':
+                    if smartlog(l, obj, False):
+                        stampit(progress)
+                        continue
+                    ke.kernel()
+                elif verb == 'tarit':
+                    if smartlog(l, obj, False):
+                        stampit(progress)
+                        continue
+                    bi.tarit()
+                elif verb == 'hashit':
+                    if smartlog(l, obj, False):
+                        stampit(progress)
+                        continue
+                    bi.hashit()
+                else:
+                    lo.log('Bad command: %s' % l)
 
-                    stampit(progress)
-
-        except FileNotFoundError:
-            lo.log('Failed to open build script: %s' % build_script)
+                stampit(progress)
