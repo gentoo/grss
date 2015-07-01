@@ -56,16 +56,9 @@ class Seed():
 
         # Download a stage tarball if we don't have one
         if not os.path.isfile(self.filepath):
-            try:
-                request = urllib.request.urlopen(self.stage_uri)
-                with open(self.filepath, 'wb') as f:
-                    shutil.copyfileobj(request, f)
-            except: #any exception will do here
-                pid = os.getpid()
-                with open(self.logfile, 'r') as f:
-                    f.write('SENDING SIGTERM to pid = %d\n' % pid)
-                    f.close()
-                os.kill(pid, signal.SIGTERM)
+            request = urllib.request.urlopen(self.stage_uri)
+            with open(self.filepath, 'wb') as f:
+                shutil.copyfileobj(request, f)
 
         # Because python's tarfile sucks
         cmd = 'tar --xattrs -xf %s -C %s' % (self.filepath, self.portage_configroot)

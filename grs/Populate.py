@@ -68,23 +68,18 @@ class Populate():
 
     def clean_subdirs(self, dirpath):
         path = os.path.join(self.portage_configroot, dirpath)
-        try:
+        if os.path.isdir(path)
             uid = os.stat(path).st_uid
             gid = os.stat(path).st_gid
             mode = os.stat(path).st_mode
             shutil.rmtree(path)
-            os.mkdir(path)
+            os.makedirs(path, mode=mode, exist_ok=False)
             os.chown(path, uid, gid)
-            os.chmod(path, mode)
-        except FileNotFoundError:
-            pass
 
 
     def clean(self):
         self.clean_subdirs('tmp')
         self.clean_subdirs('var/tmp')
         self.clean_subdirs('var/log')
-        try:
+        if os.path.isfile(self.resolv_conf):
             os.unlink(self.resolv_conf)
-        except FileNotFoundError:
-            pass

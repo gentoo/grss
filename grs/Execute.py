@@ -19,17 +19,17 @@ class Execute():
             pid = os.getpid()
             f.write('SENDING SIGTERM to pid = %d\n' % pid)
             f.close()
-            os.kill(pid, signal.SIGTERM)
+            try:
+                os.kill(pid, signal.SIGTERM)
+                os.kill(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
 
         f = open(logfile, 'a')
         args = shlex.split(cmd)
         extra_env = dict(os.environ, **extra_env)
 
-        try:
-            proc = subprocess.Popen(args, stdout=f, stderr=f, env=extra_env)
-        except FileNotFoundError:
-            f.write('Illegal cmd %s\n' % cmd)
-            signalexit()
+        proc = subprocess.Popen(args, stdout=f, stderr=f, env=extra_env)
 
         try:
             proc.wait(timeout)
