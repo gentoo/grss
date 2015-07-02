@@ -9,6 +9,8 @@ import time
 class Daemon:
     """ doc here
         more doc
+        Adopted from Sander Marechal's "A simple unix/linux daemon in Python"
+        See: http://www.jejik.com/articles/2007/02/a_simple_unix_linux_daemon_in_python/
     """
 
     def __init__(self, pidfile, **kwargs):
@@ -41,7 +43,7 @@ class Daemon:
             sys.stderr.write('fork #2 failed %s\n' % err)
             sys.exit(1)
 
-        # Close stdin, and redirect both stdout and stderr to grs-daemon-<pid>.err
+        # Dup stdin to /dev/null, and stdout and stderr to grs-daemon-<pid>.err
         si = open(os.devnull, 'r')
         os.dup2(si.fileno(), sys.stdin.fileno())
 
