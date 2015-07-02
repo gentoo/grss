@@ -121,7 +121,7 @@ def main():
     config = configparser.RawConfigParser(delimiters=':', allow_no_value=True, comment_prefixes=None)
 
     for p in mydepgraph.altlist():
-        # Prepare a section for this atom
+        # Prepare an empty section for this atom
         try:
             config[p.slot_atom] = {}
         except AttributeError:
@@ -136,11 +136,19 @@ def main():
         # Populate package.env and env/*
         envvars(config, p)
 
+        # Remove any empty sections
         if config[p.slot_atom] == {}:
             config.remove_section(p.slot_atom)
 
+    # Recontruct a RawConfigParser from the above which has sorted sections.
+    all_slot_atoms = config.sections()
+    all_slot_atoms.sort()
+    sorted_config = configparser.RawConfigParser(delimiters=':', allow_no_value=True, comment_prefixes=None)
+    for s in all_slot_atoms:
+        sorted_config[s] = config[s]
+
     with open('world.conf', 'w') as configfile:
-        config.write(configfile)
+        sorted_config.write(configfile)
 
 if __name__ == "__main__":
     main()
