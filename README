@@ -70,8 +70,13 @@ Features:
     transcribe the steps one would manually take in a chroot in build the system
     into the build script, and grsrun will automatically repeat them.
 
-    *  It is possible to script a GRS system to do the equivalent of catalyst runs.
+    * It is possible to script a GRS system to do the equivalent of catalyst runs.
     [TODO: there is still one more build script directive required here, pivot_chroot.]
+
+    * The use of Linux cgroup make management easy.  There is no need to trap or
+    propagate signals when writing the scripts that are to be run in the chroot.
+    A simple SIGTERM to grsrun will ensure that all children process are properly
+    terminated and that any bind-mounted filesystems are unmounted.
 
     * A GRS system acts as a "tinderbox-lite" in that build failures are reported.
     So as a GRS system evolves over time, as package are bumped, any breakages that
