@@ -66,8 +66,7 @@ def useflags(config, p):
     # Insert nicely sorted flags.
     if len(flags) > 0:
         flags.sort()
-        config[p.slot_atom]['package.use/%s' % re.sub('[/:]', '_', p.slot_atom)] = \
-            p.slot_atom + ' ' + ' '.join(flags)
+        config[p.slot_atom]['package.use'] = p.slot_atom + ' ' + ' '.join(flags)
 
 
 def keywords(config, p):
@@ -84,33 +83,14 @@ def keywords(config, p):
     except AttributeError:
         pass
     if keyword:
-        config[p.slot_atom]['package.accept_keywords/%s' % re.sub('[/:]', '_', p.slot_atom)] = \
-            '=%s %s' % (p.cpv, keyword)
-
-
-def envvars(config, p):
-    fpath = os.path.join(CONST.PORTAGE_CONFIGDIR, 'package.env')
-    if os.path.isfile(fpath):
-        with open(fpath, 'r') as g:
-            for l in g.readlines():
-                # This matching needs to be made more strick.
-                if re.search('%s' % re.escape(p.cpv_split[1]), l):
-                    p_slot_atom = re.sub('[/:]', '_', p.slot_atom)
-                    config[p.slot_atom]['package.env/%s' % p_slot_atom] = \
-                        '%s %s' % (p.slot_atom, p_slot_atom)
-                    m = re.search('(\S+)\s+(\S+)', l)
-                    env_file = os.path.join(CONST.PORTAGE_CONFIGDIR, 'env')
-                    env_file = os.path.join(env_file, m.group(2))
-                    with open(env_file, 'r') as h:
-                        config[p.slot_atom]['env/%s' % p_slot_atom] = h.read()
+        config[p.slot_atom]['package.accept_keywords'] = '=%s %s' % (p.cpv, keyword)
 
 
 def others(config, p, subdir):
-    rpath = '%s/%s' % (subdir, re.sub('[/:]', '_', p.slot_atom))
-    fpath = os.path.join(CONST.PORTAGE_CONFIGDIR, rpath)
+    fpath = os.path.join(CONST.PORTAGE_CONFIGDIR, subdir)
     if os.path.isfile(fpath):
         with open(fpath, 'r') as g:
-            config[p.slot_atom][rpath] = g.read()
+            config[p.slot_atom][subdir] = g.read()
 
 
 def main():
@@ -140,10 +120,9 @@ def main():
         # Populate package.accept_keywords - these are read out of p
         keywords(config, p)
 
-        # Populate package.env and env/* - these are read out of /etc/portage
-        envvars(config, p)
-
         # Others - these are read out of /etc/portage
+        others(config, p, 'env')
+        others(config, p, 'package.env')
         others(config, p, 'package.mask')
         others(config, p, 'package.unmask')
 
