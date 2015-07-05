@@ -86,8 +86,11 @@ def keywords(config, p):
         config[p.slot_atom]['package.accept_keywords'] = '=%s %s' % (p.cpv, keyword)
 
 
-def others(config, p, subdir):
-    fpath = os.path.join(CONST.PORTAGE_CONFIGDIR, subdir)
+def from_etc_portage(config, p, subdir):
+    # We could add better matching intelligence here so as to match
+    # these subdirs+files for /etc/portage not maintained by GRS.
+    fpath = os.path.join(CONST.PORTAGE_CONFIGDIR, '%s/%s' % \
+        (subdir, re.sub('[/:]', '_', p.slot_atom)))
     if os.path.isfile(fpath):
         with open(fpath, 'r') as g:
             config[p.slot_atom][subdir] = g.read()
@@ -121,10 +124,10 @@ def main():
         keywords(config, p)
 
         # Others - these are read out of /etc/portage
-        others(config, p, 'env')
-        others(config, p, 'package.env')
-        others(config, p, 'package.mask')
-        others(config, p, 'package.unmask')
+        from_etc_portage(config, p, 'env')
+        from_etc_portage(config, p, 'package.env')
+        from_etc_portage(config, p, 'package.mask')
+        from_etc_portage(config, p, 'package.unmask')
 
         # Remove any empty sections
         if config[p.slot_atom] == {}:
