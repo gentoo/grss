@@ -65,9 +65,7 @@ class WorldConf():
             try:
                 uninstalled.remove(p)
             except ValueError:
-                # These packages are installed on the local system
-                # but not in the portage tree anymore.
-                print(p)
+                print('%s installed on local system, but not in portage repo anymore.' % p)
 
         slot_atoms = []
         for p in uninstalled:
@@ -83,11 +81,9 @@ class WorldConf():
         env_slot_atoms = []
         for dirpath, dirnames, filenames in os.walk(CONST.PORTAGE_CONFIGDIR):
             # Only look at select files and directories.
-            # TODO: This needs to be expanded as we come up
-            # with a central class to deal with the internal
-            # structure of /etc/portage.
+            # TODO: This needs to be expanded.
             skip = True
-            for p in ['env', 'package.accept_keywords', 'package.use']:
+            for p in ['env', 'package.accept_keywords', 'package.use', 'package.mask', 'package.unmask']:
                 if os.path.basename(dirpath) == p:
                     skip = False
             if skip:
@@ -102,18 +98,19 @@ class WorldConf():
                     continue
 
         fpath = os.path.join(CONST.PORTAGE_CONFIGDIR, 'package.env')
-        update = False
-        with open(fpath, 'r') as g:
-            lines = g.readlines()
-            mylines = copy.deepcopy(lines)
-            for l in lines:
-                for slot_atom in env_slot_atoms:
-                    if re.search(re.escape(slot_atom), l):
-                        try:
-                            mylines.remove(l)
-                            update = True
-                        except ValueError:
-                            pass
-        if update:
-            with open(fpath, 'w') as g:
-                g.writelines(mylines)
+        if os.path.isile(fpath):
+            update = False
+            with open(fpath, 'r') as g:
+                lines = g.readlines()
+                mylines = copy.deepcopy(lines)
+                for l in lines:
+                    for slot_atom in env_slot_atoms:
+                        if re.search(re.escape(slot_atom), l):
+                            try:
+                                mylines.remove(l)
+                                update = True
+                            except ValueError:
+                                pass
+            if update:
+                with open(fpath, 'w') as g:
+                    g.writelines(mylines)
