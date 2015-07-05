@@ -7,10 +7,8 @@ from grs import WorldConf
 
 def main():
     WorldConf.clean()
-    try:
+    if os.path.isfile(CONST.PORTAGE_DIRTYFILE):
         os.remove(CONST.PORTAGE_DIRTYFILE)
-    except (FileNotFoundError, IsADirectoryError):
-        pass
 
 if __name__ == "__main__":
     main()

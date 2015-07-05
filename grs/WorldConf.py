@@ -98,7 +98,7 @@ class WorldConf():
                     continue
 
         fpath = os.path.join(CONST.PORTAGE_CONFIGDIR, 'package.env')
-        if os.path.isile(fpath):
+        if os.path.isfile(fpath):
             update = False
             with open(fpath, 'r') as g:
                 lines = g.readlines()
