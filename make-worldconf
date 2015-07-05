@@ -93,7 +93,7 @@ def from_etc_portage(config, p, subdir):
         (subdir, re.sub('[/:]', '_', p.slot_atom)))
     if os.path.isfile(fpath):
         with open(fpath, 'r') as g:
-            config[p.slot_atom][subdir] = g.read()
+            config[p.slot_atom][subdir] = g.read().strip()
 
 
 def main():
@@ -124,10 +124,10 @@ def main():
         keywords(config, p)
 
         # Others - these are read out of /etc/portage
-        from_etc_portage(config, p, 'env')
-        from_etc_portage(config, p, 'package.env')
         from_etc_portage(config, p, 'package.mask')
         from_etc_portage(config, p, 'package.unmask')
+        from_etc_portage(config, p, 'package.env')
+        from_etc_portage(config, p, 'env')
 
         # Remove any empty sections
         if config[p.slot_atom] == {}:
