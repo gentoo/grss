@@ -18,7 +18,7 @@ from grs import WorldConf
 
 from _emerge.main import emerge_main, parse_opts
 from portage.exception import IsADirectory, ParseError, PermissionDenied
-from portage import setting
+from portage import settings
 
 
 def install_kernel(version = 'latest', logfile = CONST.LOGFILE):
@@ -38,7 +38,7 @@ def install_kernel(version = 'latest', logfile = CONST.LOGFILE):
         def get_kernels(self):
             return self.kernels
 
-    baseurl = setting['PORTAGE_BINHOST']
+    baseurl = settings['PORTAGE_BINHOST']
     if baseurl == '':
         print('PORTAGE_BINHOST is not set.  Install kernel manually.')
         return

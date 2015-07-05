@@ -20,22 +20,11 @@ class WorldConf():
         """
         try:
             for (f, v) in config[s].items():
-                # a '+' at the beginging means append to the file
-                undecorated_f = re.sub('^\+', '', f)
-
-                filepath = os.path.join(portage_confdir, undecorated_f)
+                filepath = os.path.join(portage_confdir, f)
                 dirpath  = os.path.dirname(filepath)
                 os.makedirs(dirpath, mode=0o755, exist_ok=True)
-                if f == undecorated_f or not os.path.exists(filepath):
-                    with open(filepath, 'w') as g:
-                        g.write('%s\n' % v)
-                else:
-                    with open(filepath, 'r+') as g:
-                        for l in g.readlines():
-                            if v == l.strip():
-                                break
-                        else:
-                            g.write('%s\n' % v)
+                with open(filepath, 'w') as g:
+                    g.write('%s\n' % v)
         except KeyError:
             pass
 
@@ -78,39 +67,16 @@ class WorldConf():
                 slot = slotvar
             slot_atoms.append(re.sub('[/:]', '_', '%s:%s' % (p, slot)))
 
-        env_slot_atoms = []
         for dirpath, dirnames, filenames in os.walk(CONST.PORTAGE_CONFIGDIR):
             # Only look at select files and directories.
             # TODO: This needs to be expanded.
-            skip = True
-            for p in ['env', 'package.accept_keywords', 'package.use', 'package.mask', 'package.unmask']:
-                if os.path.basename(dirpath) == p:
-                    skip = False
-            if skip:
+            if not os.path.basename(dirpath) in ['env', 'package.env', \
+                    'package.accept_keywords', 'package.use', 'package.mask', \
+                    'package.unmask']:
                 continue
 
             for f in filenames:
                 fpath = os.path.realpath(os.path.join(dirpath, f))
                 if f in slot_atoms:
                     os.remove(fpath)
-                    if os.path.basename(dirpath) == 'env':
-                        env_slot_atoms.append(f)
                     continue
-
-        fpath = os.path.join(CONST.PORTAGE_CONFIGDIR, 'package.env')
-        if os.path.isfile(fpath):
-            update = False
-            with open(fpath, 'r') as g:
-                lines = g.readlines()
-                mylines = copy.deepcopy(lines)
-                for l in lines:
-                    for slot_atom in env_slot_atoms:
-                        if re.search(re.escape(slot_atom), l):
-                            try:
-                                mylines.remove(l)
-                                update = True
-                            except ValueError:
-                                pass
-            if update:
-                with open(fpath, 'w') as g:
-                    g.writelines(mylines)
