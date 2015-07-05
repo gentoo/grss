@@ -12,6 +12,7 @@ from getopt import getopt, GetoptError
 from html.parser import HTMLParser
 
 from grs import CONST
+from grs import Execute
 from grs import Log
 from grs import Synchronize
 from grs import WorldConf
@@ -44,7 +45,7 @@ def install_kernel(version = 'latest', logfile = CONST.LOGFILE):
         return
 
     try:
-        request = urllib.request.urlopen(baseurl)
+        request = urllib.request.urlopen('%s/%s' % (baseurl,'linux-images'))
         dload = request.read().decode('utf-8')
     except urllib.error.HTTPError:
         print('Cannot open %s'  % baseurl)
@@ -56,7 +57,11 @@ def install_kernel(version = 'latest', logfile = CONST.LOGFILE):
     kernels.sort()
 
     if version == 'latest':
-        kernel = kernels[-1]
+        try:
+            kernel = kernels[-1]
+        except IndexError:
+            print('No linux-image available')
+            return
     else:
         for k in kernels:
             m = re.search('linux-image-(.+).tar.xz', k)
@@ -67,20 +72,25 @@ def install_kernel(version = 'latest', logfile = CONST.LOGFILE):
             print('No linux-image %s available' % version)
             return
 
-        # Download the linux-image tarball to packages/linux-image
-        request = urllib.request.urlopen('%s/%s' % (baseurl, kernel))
-        package = '/usr/portage/packages/linux-images'
-        os.makedirs(package, mode=0o755, exist_ok=True)
-        kpath = os.path.join(package, kernel)
-        with open(kpath, 'wb') as f:
-            shutil.copyfileobj(request, f)
+    # Download the linux-image tarball to packages/linux-image
+    request = urllib.request.urlopen('%s/%s/%s' % (baseurl, 'linux-images', kernel))
+    package = '/usr/portage/packages/linux-images'
+    os.makedirs(package, mode=0o755, exist_ok=True)
+    kpath = os.path.join(package, kernel)
+    with open(kpath, 'wb') as f:
+        shutil.copyfileobj(request, f)
 
-        # Untar it at '/'.  tar will not clobber files.
-        cwd = os.getcwd()
-        os.chdir('/')
-        cmd = 'tar -Jxf %s' % kpath
-        Execute(cmd, timeout=600, logfile=logfile)
-        os.chdir(cwd)
+    # Try to mount /boot.  Fail silently since it may not be mountable.
+    if not os.path.ismount('/boot'):
+        cmd = 'mount /boot'
+        Execute(cmd, timeout=60, failok=True, logfile=logfile)
+
+    # Untar it at '/'.  tar will not clobber files.
+    cwd = os.getcwd()
+    os.chdir('/')
+    cmd = 'tar --overwrite -Jxf %s' % kpath
+    Execute(cmd, timeout=600, logfile=logfile)
+    os.chdir(cwd)
 
 
 def usage(rc=1):
@@ -127,15 +137,17 @@ def main():
             elif o == '-d':
                 if len(myfiles) == 0 or exclude > 1:
                     usage()
-                args.insert(0, '-q --unmerge')
+                args.insert(0, '--unmerge')
+                args.insert(0, '-q')
                 exclude += 1
             elif o == '-C':
                 if len(myfiles) > 0:
                     usage()
                 args = ['-gefq', '@world']
-            elif o == '=k':
+            elif o == '-k':
                 if len(sys.argv[1:]) != 2:
                     usage()
+                version = a
                 do_install_kernel = True
 
     if len(CONST.names) > 1:
@@ -165,7 +177,7 @@ def main():
     WorldConf.install()
 
     if do_install_kernel:
-        install_kernel(a)
+        install_kernel(version=version)
     else:
         try:
             emerge_main(args)
@@ -182,10 +194,8 @@ def main():
             sys.exit(1)
 
     WorldConf.clean()
-    try:
+    if os.path.exists(CONST.PORTAGE_DIRTYFILE):
         os.remove(CONST.PORTAGE_DIRTYFILE)
-    except (FileNotFoundError, IsADirectoryError):
-        pass
 
 
 if __name__ == "__main__":
@@ -194,7 +204,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         sys.stderr.write("Cleaning up /etc/portage.  This make take some time.\n")
         WorldConf.clean()
-        try:
+        if os.path.exists(CONST.PORTAGE_DIRTYFILE):
             os.remove(CONST.PORTAGE_DIRTYFILE)
-        except (FileNotFoundError, IsADirectoryError):
-            pass
