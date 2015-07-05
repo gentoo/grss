@@ -14,31 +14,20 @@ class WorldConf():
     """
 
     @staticmethod
-    def conf2file(config, s, portage_confdir):
-        """ doc here
-            more doc
-        """
-        try:
-            for (f, v) in config[s].items():
-                filepath = os.path.join(portage_confdir, f)
-                dirpath  = os.path.dirname(filepath)
-                os.makedirs(dirpath, mode=0o755, exist_ok=True)
-                with open(filepath, 'w') as g:
-                    g.write('%s\n' % v)
-        except KeyError:
-            pass
-
-
-    @staticmethod
     def install():
         """ doc here
             more doc
         """
         config = configparser.RawConfigParser(delimiters=':', allow_no_value=True, comment_prefixes=None)
         config.read(CONST.WORLD_CONFIG)
-
         for s in config.sections():
-            WorldConf.conf2file(config, s, portage_confdir=CONST.PORTAGE_CONFIGDIR)
+            for (directory, value) in config[s].items():
+                p_slot_atom = re.sub('[/:]', '_', s)
+                fpath = os.path.join(CONST.PORTAGE_CONFIGDIR, '%s/%s' % (directory, p_slot_atom))
+                dpath  = os.path.dirname(fpath)
+                os.makedirs(dpath, mode=0o755, exist_ok=True)
+                with open(fpath, 'w') as g:
+                    g.write('%s\n' % value)
 
 
     @staticmethod
@@ -71,12 +60,11 @@ class WorldConf():
             # Only look at select files and directories.
             # TODO: This needs to be expanded.
             if not os.path.basename(dirpath) in ['env', 'package.env', \
-                    'package.accept_keywords', 'package.use', 'package.mask', \
-                    'package.unmask']:
+                    'package.accept_keywords', 'package.use', \
+                    'package.mask', 'package.unmask']:
                 continue
 
             for f in filenames:
                 fpath = os.path.realpath(os.path.join(dirpath, f))
                 if f in slot_atoms:
                     os.remove(fpath)
-                    continue
