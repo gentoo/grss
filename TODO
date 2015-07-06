@@ -1,0 +1,8 @@
+My TODO list:
+
+1. A local copy of PORTDIR should be created in CONST.TMPDIR + GRS name.  This is
+to prevent wierdness in case /usr/portage changes during a run.
+
+2. Upon building a system we should make use of the binpkgs in CONST.TMPDIR + GRS name
+as a time saver.  This is something to go into the build scripts in the GRS repo and not
+in the GRS suite.
