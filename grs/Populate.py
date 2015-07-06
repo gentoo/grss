@@ -73,8 +73,9 @@ class Populate():
             gid = os.stat(path).st_gid
             mode = os.stat(path).st_mode
             shutil.rmtree(path)
-            os.makedirs(path, mode=mode, exist_ok=False)
+            os.mkdir(path)
             os.chown(path, uid, gid)
+            os.chmod(path, mode)
 
 
     def clean(self):
