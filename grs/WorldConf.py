@@ -23,8 +23,8 @@ class WorldConf():
         for s in config.sections():
             for (directory, value) in config[s].items():
                 p_slot_atom = re.sub('[/:]', '_', s)
-                fpath = os.path.join(CONST.PORTAGE_CONFIGDIR, '%s/%s' % (directory, p_slot_atom))
-                dpath  = os.path.dirname(fpath)
+                dpath = os.path.join(CONST.PORTAGE_CONFIGDIR, directory)
+                fpath = os.path.join(dpath, p_slot_atom)
                 os.makedirs(dpath, mode=0o755, exist_ok=True)
                 with open(fpath, 'w') as g:
                     g.write('%s\n' % value)
