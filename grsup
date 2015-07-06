@@ -97,7 +97,7 @@ def usage(rc=1):
     usage = """
 usage: grsup [pkg(s)]       : update @world or pkg(s) if given
        grsup [-r|-d] pkg(s) : re-install or delete pkg(s)
-       grsup -C             : download all @world pkgs, don't install
+       grsup -D             : download all @world pkgs, don't install
        grsup -k kernel      : install 'kernel' version, or 'latest'
        grsup -h             : print this help
 """
@@ -136,7 +136,7 @@ def main():
                 args = ['-C', '-q']
                 args.extend(myfiles)
                 exclude += 1
-            elif o == '-C':
+            elif o == '-D':
                 if len(myfiles) > 0:
                     usage()
                 args = ['-g', '-e', '-f', '-q', '@world']
