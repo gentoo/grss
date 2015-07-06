@@ -95,16 +95,11 @@ def install_kernel(version = 'latest', logfile = CONST.LOGFILE):
 
 def usage(rc=1):
     usage = """
-usage: grsup -C
-       grsup -k kernel
-       grsup [-r|-d] pkg(s)
-       grsup -h
-
-flags: -C  download all world packages
-     : -k  kernel version, or 'latest'
-     : -r  re-emerge the pkgs(s)
-     : -d  unmerge the pkgs(s)
-     : -h  print this help file
+usage: grsup [pkg(s)]       : update @world or pkg(s) if given
+       grsup [-r|-d] pkg(s) : re-install or delete pkg(s)
+       grsup -C             : download all @world pkgs, don't install
+       grsup -k kernel      : install 'kernel' version, or 'latest'
+       grsup -h             : print this help
 """
     print(usage)
     sys.exit(rc)
@@ -112,38 +107,39 @@ flags: -C  download all world packages
 
 def main():
     myaction, myopts, myfiles = parse_opts(sys.argv[1:])
-    args = copy.deepcopy(myfiles)
 
     try:
         opts, x = getopt(sys.argv[1:], 'Ck:rdh')
     except GetoptError:
         usage()
 
+    do_install_kernel = False
     if len(opts) == 0:
-        args.insert(0, '-gKuDq')
+        args = ['-g', '-K', '-u', '-D', '-q']
         if len(myfiles) == 0:
-            usage()
+            myfiles = ['@world']
+        args.extend(myfiles)
     else:
         exclude = 0
-        do_install_kernel = False
         for o, a in opts:
             if o == '-h':
                 usage(rc=0)
             elif o == '-r':
                 if len(myfiles) == 0 or exclude > 1:
                     usage()
-                args.insert(0, '-gKDq')
+                args = ['-g', '-K', '-D', '-q']
+                args.extend(myfiles)
                 exclude += 1
             elif o == '-d':
                 if len(myfiles) == 0 or exclude > 1:
                     usage()
-                args.insert(0, '--unmerge')
-                args.insert(0, '-q')
+                args = ['-C', '-q']
+                args.extend(myfiles)
                 exclude += 1
             elif o == '-C':
                 if len(myfiles) > 0:
                     usage()
-                args = ['-gefq', '@world']
+                args = ['-g', '-e', '-f', '-q', '@world']
             elif o == '-k':
                 if len(sys.argv[1:]) != 2:
                     usage()
