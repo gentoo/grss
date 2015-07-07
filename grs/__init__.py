@@ -8,6 +8,7 @@ from grs.Interpret import Interpret
 from grs.Log import Log
 from grs.Kernel import Kernel
 from grs.MountDirectories import MountDirectories
+from grs.PivotChroot import PivotChroot
 from grs.Populate import Populate
 from grs.RunScript import RunScript
 from grs.Synchronize import Synchronize
