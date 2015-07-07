@@ -32,7 +32,8 @@ class PivotChroot():
         if some_mounted:
             md.umount_all()
 
-        # TODO: we need to move this code into its own class and inherit
+        # TODO: we need to generalize this code into its own class
+        # and inherit it here, in Log.py and Seed.py.
         # Rotate any previous portage_configroots out of the way
         dirs = glob.glob('%s.*' % self.portage_configroot)
         indexed_dir = {}
@@ -47,11 +48,11 @@ class PivotChroot():
             m = re.search('^(.+)\.\d+$', current_dir)
             next_dir = '%s.%d' % (m.group(1), c+1)
             shutil.move(current_dir, next_dir)
-        # If there is a directory, then move it to %s.0
-        if os.path.isdir(self.portage_configroot):
-            shutil.move(self.portage_configroot, '%s.0' % self.portage_configroot)
 
-        inner_chroot = os.path.join(self.portage_configroot, subchroot)
+        # Assume portage_configroot exists and out of the way to system.0,
+        # then pivot out the inner chroot to system.
+        shutil.move(self.portage_configroot, '%s.0' % self.portage_configroot)
+        inner_chroot = os.path.join('%s.0' % self.portage_configroot, subchroot)
         shutil.move(inner_chroot, os.path.join(self.tmpdir, 'system'))
 
         if all_mounted:
