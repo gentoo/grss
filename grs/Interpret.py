@@ -138,6 +138,9 @@ class Interpret(Daemon):
                 if os.path.exists(progress) and not ignore_stamp:
                     continue
 
+                # This is pretty simple interpretive logic, either its a
+                # single 'verb', or a 'verb obj' pair.  While restrictive,
+                # its good enough for now.
                 try:
                     m = re.search('(\S+)\s+(\S+)', l)
                     verb = m.group(1)
@@ -193,10 +196,14 @@ class Interpret(Daemon):
                         continue
                     ke.kernel()
                 elif verb == 'tarit':
-                    if smartlog(l, obj, False):
-                        stampit(progress)
-                        continue
-                    bi.tarit()
+                    # 'tarit' can either be just a verb,
+                    # or a 'verb obj' pair.
+                    if obj:
+                        smartlog(l, obj, True):
+                        bi.tarit(obj)
+                    else:
+                        smartlog(l, obj, False):
+                        bi.tarit()
                 elif verb == 'hashit':
                     if smartlog(l, obj, False):
                         stampit(progress)

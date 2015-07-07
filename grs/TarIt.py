@@ -11,16 +11,20 @@ class TarIt():
         self.portage_configroot = portage_configroot
         self.logfile = logfile
 
-        year = str(datetime.now().year).zfill(4)
-        month = str(datetime.now().month).zfill(2)
-        day = str(datetime.now().day).zfill(2)
-        self.tarball_name = '%s-%s%s%s.tar.xz' % (name, year, month, day)
+        self.year = str(datetime.now().year).zfill(4)
+        self.month = str(datetime.now().month).zfill(2)
+        self.day = str(datetime.now().day).zfill(2)
+        self.tarball_name = '%s-%s%s%s.tar.xz' % (name, self.year, self.month, self.day)
         self.digest_name = '%s.DIGESTS' % self.tarball_name
 
-    def tarit(self):
+    def tarit(self, alt_name = None):
+        if alt_name:
+            self.tarball_name = '%s-%s%s%s.tar.xz' % (alt_name, self.year, self.month, self.day)
+            self.digest_name = '%s.DIGESTS' % self.tarball_name
         cwd = os.getcwd()
         os.chdir(self.portage_configroot)
         tarball_path = os.path.join('..', self.tarball_name)
+        # This needs to be generalized for systems that don't support xattrs
         xattr_opts = '--xattrs --xattrs-include=security.capability --xattrs-include=user.pax.flags'
         cmd = 'tar %s -Jcf %s .' % (xattr_opts, tarball_path)
         Execute(cmd, timeout=None, logfile=self.logfile)
