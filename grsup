@@ -115,7 +115,7 @@ def main():
 
     do_install_kernel = False
     if len(opts) == 0:
-        args = ['-g', '-K', '-u', '-D', '-q']
+        args = ['-1', '-g', '-K', '-u', '-D', '-q']
         if len(myfiles) == 0:
             myfiles = ['@world']
         args.extend(myfiles)
@@ -127,7 +127,7 @@ def main():
             elif o == '-r':
                 if len(myfiles) == 0 or exclude > 1:
                     usage()
-                args = ['-g', '-K', '-D', '-q']
+                args = ['-1', '-g', '-K', '-D', '-q']
                 args.extend(myfiles)
                 exclude += 1
             elif o == '-d':
