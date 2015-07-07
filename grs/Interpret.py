@@ -115,6 +115,11 @@ class Interpret(Daemon):
             for l in s.readlines():
                 line_number += 1
 
+                # Skip lines with initial # as comments
+                m = re.search('^(#).*$', l)
+                if m:
+                    continue
+
                 # For a release run, execute every line of the build script.
                 # For an update run, exexute only lines with a leading +.
                 ignore_stamp = False
