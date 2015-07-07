@@ -88,7 +88,7 @@ class Interpret(Daemon):
         md = MountDirectories(portage_configroot, package, logfile)
         po = Populate(nameserver, libdir, workdir, portage_configroot, logfile)
         ru = RunScript(libdir, portage_configroot, logfile)
-        pc = PivotChroot(tmdpir, portage_configroot, logfile)
+        pc = PivotChroot(tmpdir, portage_configroot, logfile)
         ke = Kernel(libdir, portage_configroot, kernelroot, package, logfile)
         bi = TarIt(name, portage_configroot, logfile)
 
