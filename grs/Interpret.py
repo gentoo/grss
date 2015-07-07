@@ -87,6 +87,7 @@ class Interpret(Daemon):
         md = MountDirectories(portage_configroot, package, logfile)
         po = Populate(nameserver, libdir, workdir, portage_configroot, logfile)
         ru = RunScript(libdir, portage_configroot, logfile)
+        pc = PivotChroot(tmdpir, portage_configroot, logfile)
         ke = Kernel(libdir, portage_configroot, kernelroot, package, logfile)
         bi = TarIt(name, portage_configroot, logfile)
 
@@ -170,6 +171,11 @@ class Interpret(Daemon):
                         stampit(progress)
                         continue
                     ru.runscript(obj)
+                elif verb == 'pivot':
+                    if smartlog(l, obj):
+                        stampit(progress)
+                        continue
+                    pc.pivot(obj, md)
                 elif verb == 'clean':
                     if smartlog(l, obj, False):
                         stampit(progress)
