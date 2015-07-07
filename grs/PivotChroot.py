@@ -51,7 +51,7 @@ class PivotChroot():
         if os.path.isdir(self.portage_configroot):
             shutil.move(self.portage_configroot, '%s.0' % self.portage_configroot)
 
-        inner_chroot = os.path.join(self.portage_configroot, subdir)
+        inner_chroot = os.path.join(self.portage_configroot, subchroot)
         shutil.move(inner_chroot, os.path.join(self.tmpdir, 'system'))
 
         if all_mounted:
