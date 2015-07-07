@@ -199,10 +199,10 @@ class Interpret(Daemon):
                     # 'tarit' can either be just a verb,
                     # or a 'verb obj' pair.
                     if obj:
-                        smartlog(l, obj, True):
+                        smartlog(l, obj, True)
                         bi.tarit(obj)
                     else:
-                        smartlog(l, obj, False):
+                        smartlog(l, obj, False)
                         bi.tarit()
                 elif verb == 'hashit':
                     if smartlog(l, obj, False):
