@@ -66,16 +66,18 @@ class Populate():
                     else:
                         os.remove(old_file)
 
-    def clean_subdirs(self, dirpath):
-        path = os.path.join(self.portage_configroot, dirpath)
-        if os.path.isdir(path):
-            uid = os.stat(path).st_uid
-            gid = os.stat(path).st_gid
-            mode = os.stat(path).st_mode
-            shutil.rmtree(path)
-            os.mkdir(path)
-            os.chown(path, uid, gid)
-            os.chmod(path, mode)
+    def clean_subdirs(self, reldir):
+        absdir = os.path.join(self.portage_configroot, reldir)
+        if not os.path.isdir(absdir):
+            return
+        uid = os.stat(absdir).st_uid
+        gid = os.stat(absdir).st_gid
+        mode = os.stat(absdir).st_mode
+        shutil.rmtree(absdir)
+        os.mkdir(absdir)
+        os.chown(absdir, uid, gid)
+        os.chmod(absdir, mode)
+        open(os.path.join(absdir, '.keep'),'w').close()
 
 
     def clean(self):
