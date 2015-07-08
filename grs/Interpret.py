@@ -185,11 +185,6 @@ class Interpret(Daemon):
                         stampit(progress)
                         continue
                     pc.pivot(obj, md)
-                elif verb == 'clean':
-                    if smartlog(l, obj, False):
-                        stampit(progress)
-                        continue
-                    po.clean()
                 elif verb == 'kernel':
                     if smartlog(l, obj, False):
                         stampit(progress)

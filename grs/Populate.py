@@ -65,24 +65,3 @@ class Populate():
                         os.rename(old_file, new_file)
                     else:
                         os.remove(old_file)
-
-    def clean_subdirs(self, reldir):
-        absdir = os.path.join(self.portage_configroot, reldir)
-        if not os.path.isdir(absdir):
-            return
-        uid = os.stat(absdir).st_uid
-        gid = os.stat(absdir).st_gid
-        mode = os.stat(absdir).st_mode
-        shutil.rmtree(absdir)
-        os.mkdir(absdir)
-        os.chown(absdir, uid, gid)
-        os.chmod(absdir, mode)
-        open(os.path.join(absdir, '.keep'),'w').close()
-
-
-    def clean(self):
-        self.clean_subdirs('tmp')
-        self.clean_subdirs('var/tmp')
-        self.clean_subdirs('var/log')
-        if os.path.isfile(self.resolv_conf):
-            os.unlink(self.resolv_conf)
