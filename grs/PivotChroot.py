@@ -35,8 +35,7 @@ class PivotChroot(Rotator):
 
         # Move portage_configroot out of the way to system.0,
         # then pivot out the inner chroot to system.
-        self.rotate(self.portage_configroot)
-        shutil.move(self.portage_configroot, '%s.0' % self.portage_configroot)
+        self.full_rotate(self.portage_configroot)
         inner_chroot = os.path.join('%s.0' % self.portage_configroot, subchroot)
         shutil.move(inner_chroot, os.path.join(self.tmpdir, 'system'))
 

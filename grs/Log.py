@@ -26,8 +26,6 @@ class Log(Rotator):
             f.write('%s\n' % msg)
 
 
-    def rotate_logs(self):
-        self.rotate(self.logfile)
-        if os.path.isfile(self.logfile):
-            shutil.move(self.logfile, '%s.0' % self.logfile)
+    def rotate_logs(self, upper_limit = 20):
+        self.full_rotate(self.logfile, upper_limit=upper_limit)
         open('%s' % self.logfile, 'a').close()

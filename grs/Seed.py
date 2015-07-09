@@ -35,9 +35,7 @@ class Seed(Rotator):
         """
         # Rotate the old portage_configroot and package out of the way
         for directory in [self.portage_configroot, self.package]:
-            self.rotate(directory)
-            if os.path.isdir(directory):
-                shutil.move(directory, '%s.0' % directory)
+            self.full_rotate(directory)
             os.makedirs(directory, mode=0o755, exist_ok=False)
 
         # Download a stage tarball if we don't have one
