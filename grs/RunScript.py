@@ -25,4 +25,7 @@ class RunScript():
         os.chmod(script_dst, 0o0755)
         cmd = 'chroot %s /tmp/script' % self.portage_configroot
         Execute(cmd, timeout=None, logfile=self.logfile)
-        os.unlink(script_dst)
+        # In the case of a clean script, it can delete itself, so
+        # check if the script exists before trying to delete it.
+        if os.path.isfile(script_dst):
+            os.unlink(script_dst)
