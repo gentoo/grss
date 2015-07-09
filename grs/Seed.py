@@ -5,8 +5,10 @@ import os
 import re
 import shutil
 import urllib.request
+
 from grs.Constants import CONST
 from grs.Execute import Execute
+from grs.Rotator import Rotator
 
 
 class Seed(Rotator):

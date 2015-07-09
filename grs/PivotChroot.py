@@ -7,6 +7,7 @@ import shutil
 
 from grs.Constants import CONST
 from grs.MountDirectories import MountDirectories
+from grs.Rotator import Rotator
 
 
 class PivotChroot(Rotator):

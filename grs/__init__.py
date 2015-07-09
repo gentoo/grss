@@ -10,6 +10,7 @@ from grs.Kernel import Kernel
 from grs.MountDirectories import MountDirectories
 from grs.PivotChroot import PivotChroot
 from grs.Populate import Populate
+from grs.Rotator import Rotator
 from grs.RunScript import RunScript
 from grs.Synchronize import Synchronize
 from grs.Seed import Seed
