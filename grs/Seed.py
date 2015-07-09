@@ -9,7 +9,7 @@ from grs.Constants import CONST
 from grs.Execute import Execute
 
 
-class Seed():
+class Seed(Rotator):
     """ doc here
         more doc
     """
@@ -31,27 +31,11 @@ class Seed():
         """ doc here
             more doc
         """
+        # Rotate the old portage_configroot and package out of the way
         for directory in [self.portage_configroot, self.package]:
-            # Rotate any previous directories out of the way
-            dirs = glob.glob('%s.*' % directory)
-            indexed_dir = {}
-            for d in dirs:
-                m = re.search('^.+\.(\d+)$', d)
-                indexed_dir[int(m.group(1))] = d
-            count = list(indexed_dir.keys())
-            count.sort()
-            count.reverse()
-            for c in count:
-                current_dir = indexed_dir[c]
-                m = re.search('^(.+)\.\d+$', current_dir)
-                next_dir = '%s.%d' % (m.group(1), c+1)
-                shutil.move(current_dir, next_dir)
-            # If there is a directory, then move it to %s.0
+            self.rotate(directory)
             if os.path.isdir(directory):
                 shutil.move(directory, '%s.0' % directory)
-            # Now that all prevous directory are out of the way,
-            # create a new empty directory.  Fail if the directory
-            # is still around.
             os.makedirs(directory, mode=0o755, exist_ok=False)
 
         # Download a stage tarball if we don't have one

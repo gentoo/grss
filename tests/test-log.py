@@ -11,10 +11,8 @@ from grs import Log
 logdir = '/tmp/test-log'
 
 def doit(stamped = False):
-    try:
+    if os.path.isdir(logdir):
         shutil.rmtree(logdir)
-    except FileNotFoundError:
-        pass
     os.makedirs(logdir)
     logfile = os.path.join(logdir, 'test.log')
 
