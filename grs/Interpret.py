@@ -4,6 +4,8 @@ import os
 import re
 import signal
 import sys
+import time
+
 from grs.Constants import CONST
 from grs.Daemon import Daemon
 from grs.Log import Log
@@ -44,8 +46,12 @@ class Interpret(Daemon):
                         if mypid == pid:
                             continue
                         try:
-                            os.kill(pid, signal.SIGTERM)
-                            os.kill(pid, signal.SIGKILL)
+                            for i in range(10):
+                                os.kill(pid, signal.SIGTERM)
+                                time.sleep(0.2)
+                            while True:
+                                os.kill(pid, signal.SIGKILL)
+                                time.sleep(0.2)
                         except ProcessLookupError:
                             pass
             try:
