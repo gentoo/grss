@@ -11,12 +11,12 @@ class Daemon:
         See: http://www.jejik.com/articles/2007/02/a_simple_unix_linux_daemon_in_python/
 
         To use, inherit by a subclass which overrides run() and does all the
-        daemon work.  You start the daemon with
+        work.  You start the daemon with
 
-            d = MyDaemon(pidfile, foo='1', bar='2')  # Any number for kwargs after pidfile
+            d = MyDaemon(pidfile, foo='1', bar='2')  # Any **kwargs after pidfile
             d.start()   # to start the daemon
-            d.restart() # to restart the daemon
-            d.stop()    # to stop the daemon
+
+        All signal handling should be defined in a subfunction within run().
 
         Note: This isn't completely general daemon code as it doesn't close stdout/stderr.
         Rather these are redirected to /var/log/grs/grs-daemon-<pid>.err to capture any
@@ -24,12 +24,12 @@ class Daemon:
     """
 
     def __init__(self, pidfile, **kwargs):
-        """ Since this will be used as a super class, we'll accept any **kwargs
-            and insert them to our internal __dict__.
-        """
+        # Since this will be used as a super class, we'll accept any **kwargs
+        # and insert them to our internal __dict__.
         self.pidfile = pidfile
         for k in kwargs:
             self.__dict__[k] = kwargs[k]
+
 
     def daemonize(self):
         try:
@@ -76,11 +76,14 @@ class Daemon:
         os.remove(self.pidfile)
 
 
+    def run(self):
+        pass
+
+
     def start(self):
-        # If there's a pidfile when we try to startup, then either
-        # its stale or we're already running.  If the pidfile is stale,
-        # remove it and startup as usual.  If we're already running,
-        # then don't start a second instance.
+        # If there's a pidfile when we try to startup, then:
+        # 1) If the pidfile is stale, remove it and startup as usual.
+        # 2) If we're already running, then don't start a second instance.
         try:
             with open(self.pidfile, 'r') as pf:
                 pid = int(pf.read().strip())
@@ -97,51 +100,3 @@ class Daemon:
 
         self.daemonize()
         self.run()
-
-
-    def stop(self):
-        # Try to open our pidfile and read our pid.  If you have a pid but
-        # there is no process at that pid, then we're not running and all
-        # we have to do is cleanup our stale pidfile.a  If we can't get a
-        # pid from our pidfile, then we've lost the original process.  Either
-        # it crashed or something else killed the pidfile.  We don't know.
-        # Finally if have a valid pid, send it a bunch of SIGTERMS followed
-        # by SIGKILLS just in case.
-        try:
-            with open(self.pidfile,'r') as pf:
-                pid = int(pf.read().strip())
-        except IOError:
-            pid = None
-
-        if pid and not os.path.exists('/proc/%d' % pid):
-            sys.stderr.write('process not running\n')
-            sys.stderr.write('unlinking stale pid file %s\n' % self.pidfile)
-            os.unlink(self.pidfile)
-            return
-
-        if not pid:
-            sys.stderr.write('process not running\n')
-            return # not an error in a restart
-
-        try:
-            for i in range(10):
-                os.kill(pid, signal.SIGTERM)
-                time.sleep(0.2)
-            while True:
-                os.kill(pid, signal.SIGKILL)
-                time.sleep(0.2)
-        except ProcessLookupError as err:
-            try:
-                os.remove(self.pidfile)
-            except IOError as err:
-                sys.stderr.write('%s\n' % err)
-        except OSError as err:
-            sys.stderr.write('%s\n' %err)
-            return
-
-    def restart(self):
-        self.stop()
-        self.start()
-
-    def run(self):
-        pass

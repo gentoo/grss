@@ -46,26 +46,18 @@ if __name__ == "__main__":
     Execute(cmd)
 
     if len(sys.argv) != 2:
-        print('%s [start1 start2 startb stop1 stop2 restart1 restart2 pids killall]' % sys.argv[0])
+        print('%s [start1 start2 start12 pids killall]' % sys.argv[0])
         sys.exit(1)
 
     if 'start1' == sys.argv[1]:
         daemon1.start()
     elif 'start2' == sys.argv[1]:
         daemon2.start()
-    elif 'startb' == sys.argv[1]:
+    elif 'start12' == sys.argv[1]:
         if not os.fork():
             daemon1.start()
         elif not os.fork():
             daemon2.start()
-    elif 'stop1' == sys.argv[1]:
-        daemon1.stop()
-    elif 'stop2' == sys.argv[1]:
-        daemon2.stop()
-    elif 'restart1' == sys.argv[1]:
-        daemon1.restart()
-    elif 'restart2' == sys.argv[1]:
-        daemon2.restart()
     elif 'pids' == sys.argv[1]:
         try:
             print('daemon1:\n%s' % open(mypid1, 'r').read())
