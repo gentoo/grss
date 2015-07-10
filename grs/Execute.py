@@ -5,6 +5,7 @@ import signal
 import shlex
 import subprocess
 import sys
+import time
 from grs.Constants import CONST
 
 class Execute():
@@ -28,8 +29,12 @@ class Execute():
             f.write('SENDING SIGTERM to pid = %d\n' % pid)
             f.close()
             try:
-                os.kill(pid, signal.SIGTERM)
-                os.kill(pid, signal.SIGKILL)
+                for i in range(10):
+                    os.kill(pid, signal.SIGTERM)
+                    time.sleep(0.2)
+                while True:
+                    os.kill(pid, signal.SIGKILL)
+                    time.sleep(0.2)
             except ProcessLookupError:
                 pass
 
