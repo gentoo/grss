@@ -42,23 +42,19 @@ def main():
         elif o == '-u':
             update_run = True
 
-    cgroupdir      = '/sys/fs/cgroup'
-    grs_cgroup     = 'grs'
-    grs_cgroupdir  = os.path.join(cgroupdir, grs_cgroup)
-
-    os.makedirs(grs_cgroupdir, mode=0o555, exist_ok=True)
-    if not os.path.ismount(grs_cgroupdir):
-        cmd = 'mount -t cgroup -o none,name=grs grs %s' % grs_cgroupdir
+    os.makedirs(CONST.GRS_CGROUPDIR, mode=0o555, exist_ok=True)
+    if not os.path.ismount(CONST.GRS_CGROUPDIR):
+        cmd = 'mount -t cgroup -o none,name=grs grs %s' % CONST.GRS_CGROUPDIR
         Execute(cmd)
 
     count = 0
     for name in CONST.names:
         if not os.fork():
             subcgroup    = 'run-%s' % name
-            subcgroupdir = os.path.join(grs_cgroupdir, subcgroup)
+            subcgroupdir = os.path.join(CONST.GRS_CGROUPDIR, subcgroup)
             os.makedirs(subcgroupdir, exist_ok=True)
 
-            cmd = 'cgclassify -g name=%s:/%s %d' % (grs_cgroup, subcgroup, os.getpid())
+            cmd = 'cgclassify -g name=%s:/%s %d' % (CONST.GRS_CGROUP, subcgroup, os.getpid())
             Execute(cmd)
 
             mr = Interpret(CONST.pidfiles[count], run_number=count, subcgroupdir=subcgroupdir, \
