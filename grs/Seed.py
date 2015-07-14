@@ -12,15 +12,10 @@ from grs.Rotator import Rotator
 
 
 class Seed(Rotator):
-    """ doc here
-        more doc
-    """
+    """ Download a stage tarball and unpack it into an empty system portage configroot. """
 
     def __init__(self, stage_uri, tmpdir = CONST.TMPDIR, portage_configroot = \
             CONST.PORTAGE_CONFIGROOT, package = CONST.PACKAGE, logfile = CONST.LOGFILE):
-        """ doc here
-            more doc
-        """
         self.stage_uri = stage_uri
         self.portage_configroot = portage_configroot
         self.package = package
@@ -30,9 +25,6 @@ class Seed(Rotator):
 
 
     def seed(self):
-        """ doc here
-            more doc
-        """
         # Rotate the old portage_configroot and package out of the way
         for directory in [self.portage_configroot, self.package]:
             self.full_rotate(directory)
@@ -47,4 +39,3 @@ class Seed(Rotator):
         # Because python's tarfile sucks
         cmd = 'tar --xattrs -xf %s -C %s' % (self.filepath, self.portage_configroot)
         Execute(cmd, timeout=120, logfile=self.logfile)
-        #os.unlink(self.filepath)
