@@ -20,15 +20,16 @@ from grs.TarIt import TarIt
 
 
 class Interpret(Daemon):
-    """ doc here
-        more doc
-    """
+    """ This is the main daemon class. """
 
     def run(self):
-        """ doc here
-            more doc
+        """ This overrides the empty Daemon run method and is started when .start()
+            is executed.  This first daemonizes the process and then runs this method.
+            Note that the Daemon class does not set up any signal handles and expects
+            that to be done in the subclass.
         """
 
+        # First we set up some inner methods:
         def handler(signum, frame):
             """ On SIGTERM, propagate the signal to all processes in the cgroup/subcgroup
                 except yourself.  If a process won't terminate nicely, then kill it.
@@ -60,10 +61,14 @@ class Interpret(Daemon):
                 pass
             sys.exit(signum + 128)
 
-        signal.signal(signal.SIGINT,  handler)
-        signal.signal(signal.SIGTERM, handler)
 
         def smartlog(l, obj, has_obj = True):
+            """ This logs whether or not we have a grammatically incorrect
+                directive, or we are doing a mock run, and returns whether
+                or not we should execute the directive:
+                    True  = skip this directive
+                    False = don't skip it
+            """
             if (has_obj and not obj) or (not has_obj and obj):
                 lo.log('Bad command: %s' % l)
                 return True
@@ -72,9 +77,19 @@ class Interpret(Daemon):
                 return True
             return False
 
+
         def stampit(progress):
+            """ Create an empty file to mark the progress through the
+                build script.
+            """
             open(progress, 'w').close()
 
+
+        # Register the signals to terminate the entire process cgroup
+        signal.signal(signal.SIGINT,  handler)
+        signal.signal(signal.SIGTERM, handler)
+
+        # Grab all the GRS namespace variables
         nameserver  = CONST.nameservers[self.run_number]
         repo_uri    = CONST.repo_uris[self.run_number]
         stage_uri   = CONST.stage_uris[self.run_number]
@@ -88,6 +103,9 @@ class Interpret(Daemon):
         kernelroot  = CONST.kernelroots[self.run_number]
         portage_configroot = CONST.portage_configroots[self.run_number]
 
+        # Initialize all the classes that will run the directives from
+        # the build script.  Note that we expect these classes to just
+        # initialize some variables but not do any work in their initializers.
         lo = Log(logfile)
         sy = Synchronize(repo_uri, name, libdir, logfile)
         se = Seed(stage_uri, tmpdir, portage_configroot, package, logfile)
@@ -98,12 +116,15 @@ class Interpret(Daemon):
         ke = Kernel(libdir, portage_configroot, kernelroot, package, logfile)
         bi = TarIt(name, portage_configroot, logfile)
 
+        # Just in case /var/tmp/grs doesn't already exist.
         os.makedirs(tmpdir, mode=0o755, exist_ok=True)
 
+        # Rotate any prevously existing logs and make unmount any existing
+        # bind mounts from a previous run that were not cleaned up.
         lo.rotate_logs()
         md.umount_all()
 
-        # Both sync() + seed() are not scripted steps.
+        # Both sync() + seed() do not need build script directives.
         # sync() is done unconditionally for an update run.
         progress = os.path.join(tmpdir, '.completed_sync')
         if not os.path.exists(progress) or self.update_run:
@@ -116,13 +137,14 @@ class Interpret(Daemon):
             se.seed()
             stampit(progress)
 
+        # Read the build script and execute a line at a time.
         build_script = os.path.join(libdir, 'build')
         with open(build_script, 'r') as s:
             line_number = 0
             for l in s.readlines():
                 line_number += 1
 
-                # Skip lines with initial # as comments
+                # Skip lines with initial # as comments.
                 m = re.search('^(#).*$', l)
                 if m:
                     continue
@@ -155,6 +177,8 @@ class Interpret(Daemon):
                     verb = l.strip()
                     obj = None
 
+                # This long concatenated if is where the semantics of the
+                # build script are implemented.
                 if verb == '':
                     stampit(progress)
                     continue
@@ -214,3 +238,10 @@ class Interpret(Daemon):
                     lo.log('Bad command: %s' % l)
 
                 stampit(progress)
+
+        # Just in case the build script lacks a final unmount, if we
+        # are done, then let's make sure we clean up after ourselves.
+        try:
+            md.umount_all()
+        except NameError:
+            pass
