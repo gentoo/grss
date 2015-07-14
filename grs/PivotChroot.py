@@ -11,33 +11,28 @@ from grs.Rotator import Rotator
 
 
 class PivotChroot(Rotator):
-    """ doc here
-        more doc
-    """
+    """ Move an inner chroot out to the new system portage configroot.  """
 
     def __init__(self, tmpdir = CONST.TMPDIR, portage_configroot = CONST.PORTAGE_CONFIGROOT, \
             logfile = CONST.LOGFILE):
-        """ doc here
-            more doc
-        """
         self.tmpdir = tmpdir
         self.portage_configroot = portage_configroot
         self.logfile = logfile
 
 
     def pivot(self, subchroot, md):
-        """ doc here
-            more doc
-        """
+        # If any directories are mounted, unmount them before pivoting.
         some_mounted, all_mounted = md.are_mounted()
         if some_mounted:
             md.umount_all()
 
-        # Move portage_configroot out of the way to system.0,
-        # then pivot out the inner chroot to system.
+        # Move the system's portage configroot out of the way to system.0,
+        # then pivot the inner chroot to system.
         self.full_rotate(self.portage_configroot)
         inner_chroot = os.path.join('%s.0' % self.portage_configroot, subchroot)
         shutil.move(inner_chroot, os.path.join(self.tmpdir, 'system'))
 
+        # Be conservative: only if all the directories were mounted on the old
+        # system portage configroot to we remount on the newly pivoted root.
         if all_mounted:
             md.mount_all()
