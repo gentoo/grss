@@ -15,11 +15,13 @@ from getopt import getopt, GetoptError
 
 def usage(rc=1):
     usage = """
-usage: grsrun [-m|-u|-h]
+usage: grsrun [-m|-u|-h|-s <name>]
 
-flags: -m  Mock run.  Don't really execute.
-     : -u  Update run.
-     : -h  print this help file
+flags:             Release run.  Do every step in build script.
+     : -u          Update run.  Do only '+' steps.
+     : -m          Mock run.  Log what would be done.
+     : -s <name>.  Only run for GRS system <name>.
+     : -h          Print this help file.
 """
     print(usage)
     sys.exit(rc)
@@ -28,12 +30,13 @@ flags: -m  Mock run.  Don't really execute.
 
 def main():
     try:
-        opts, x = getopt(sys.argv[1:], 'muh')
+        opts, x = getopt(sys.argv[1:], 'mus:h')
     except GetoptError as e:
         usage()
 
     mock_run = False
     update_run = False
+    grsname = None
     for o, a in opts:
         if o == '-h':
             usage(0)
@@ -41,6 +44,8 @@ def main():
             mock_run = True
         elif o == '-u':
             update_run = True
+        elif o == '-s':
+            grsname = a
 
     os.makedirs(CONST.GRS_CGROUPDIR, mode=0o555, exist_ok=True)
     if not os.path.ismount(CONST.GRS_CGROUPDIR):
@@ -49,6 +54,10 @@ def main():
 
     count = 0
     for name in CONST.names:
+        if grsname:
+            if name != grsname:
+                count = count + 1
+                continue
         if not os.fork():
             subcgroup    = 'run-%s' % name
             subcgroupdir = os.path.join(CONST.GRS_CGROUPDIR, subcgroup)
