@@ -98,7 +98,7 @@ def usage(rc=1):
 usage: grsup [pkg(s)]       : update @world or pkg(s) if given
        grsup [-r|-d] pkg(s) : re-install or delete pkg(s)
        grsup -D             : download all @world pkgs, don't install
-       grsup -k kernel      : install 'kernel' version, or 'latest'
+       grsup -k <version>   : install kernel <version> or 'latest'
        grsup -h             : print this help
 """
     print(usage)
