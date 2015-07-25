@@ -64,6 +64,8 @@ class Kernel():
         image_dir     = os.path.join(self.kernelroot, gentoo_version)
         boot_dir      = os.path.join(image_dir, 'boot')
         modprobe_dir  = os.path.join(image_dir, 'etc/modprobe.d')
+        # TODO: modules_dir really needs $(get_libdir), eg /lib64.
+        # For example, this breaks on amd64 multilib.
         modules_dir   = os.path.join(image_dir, 'lib/modules')
 
         # Remove any old kernel image directory and create a boot directory.
