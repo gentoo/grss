@@ -106,7 +106,7 @@ class Kernel():
                     Execute(cmd)
 
         # Copy the newly compiled kernel image and modules to portage configroot
-        cmd = 'rsync -a %s/ %s' % (image_dir, self.portage_configroot)
+        cmd = 'rsync -aK %s/ %s' % (image_dir, self.portage_configroot)
         Execute(cmd, timeout=60, logfile=self.logfile)
 
         # Tar up the kernel image and modules and place them in package/linux-images
