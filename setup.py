@@ -17,6 +17,7 @@ setup(
     author_email = 'blueness@gentoo.org',
     license = 'GNU General Public License, Version 2',
     packages = ['grs'],
-    scripts = ['grsrun', 'grsup', 'clean-worldconf', 'install-worldconf', 'make-worldconf'],
-    data_files = [('/etc/grs', ['systems.conf'])]
+    scripts = ['bin/grsrun', 'bin/grsup', 'bin/clean-worldconf', \
+        'bin/install-worldconf', 'bin/make-worldconf'],
+    data_files = [('/etc/grs', ['conf/systems.conf'])]
 ) 
