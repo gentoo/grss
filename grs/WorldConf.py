@@ -9,15 +9,28 @@ import re
 from grs.Constants import CONST
 
 class WorldConf():
-    """ doc here
-        more doc
-    """
+    """ Manage files in /etc/portage based on /etc/grs/world.conf """
+
+    # TODO: This needs to be expanded.
+    manageddirs = ['env', 'package.env', 'package.accept_keywords', \
+        'package.use', 'package.mask', 'package.unmask']:
 
     @staticmethod
     def install():
-        """ doc here
-            more doc
+        """ Restore /etc/portage to a prestine stage (removing all files
+            in manageddirs, and copy in all files specified in world.conf.
         """
+        # This is harsh, but we need to start from a clean slate because
+        # world.conf can drop sections.  If it does, then those files are
+        # orphaned and can inject flags/envvars which are problematic.
+        for directory in WorldConf.manageddirs:
+            dpath = os.path.join(CONST.PORTAGE_CONFIGDIR, directory)
+            for f in os.listdir(dpath):
+                fpath = os.path.join(dpath, f)
+                if os.path.isfile(fpath):
+                    os.remove(fpath)
+
+        # Now we can read world.conf and populate an empty /etc/portage.
         config = configparser.RawConfigParser(delimiters=':', allow_no_value=True, comment_prefixes=None)
         config.read(CONST.WORLD_CONFIG)
         for s in config.sections():
@@ -32,12 +45,14 @@ class WorldConf():
 
     @staticmethod
     def clean():
-        """ doc here
-            more doc
+        """ Remove any files from /etc/portage that are unnecessary, ie that
+            do not correspond to installed pkgs.
         """
+        # We need to look at all portage provide pkgs and all installed pkgs.
         portdb = portage.db[portage.root]["porttree"].dbapi
         vardb  = portage.db[portage.root]["vartree"].dbapi
 
+        # Remove all installed pkgs from the set of all portage packages.
         uninstalled = portdb.cp_all()
         for p in vardb.cp_all():
             try:
@@ -45,6 +60,7 @@ class WorldConf():
             except ValueError:
                 print('%s installed on local system, but not in portage repo anymore.' % p)
 
+        # Construct a list of canonical named files for uninstalled pkgs.
         slot_atoms = []
         for p in uninstalled:
             cpv = portdb.cp_list(p)[0]
@@ -56,12 +72,10 @@ class WorldConf():
                 slot = slotvar
             slot_atoms.append(re.sub('[/:]', '_', '%s:%s' % (p, slot)))
 
+        # Walk through all files in /etc/portage and remove any files for uninstalled pkgs.
         for dirpath, dirnames, filenames in os.walk(CONST.PORTAGE_CONFIGDIR):
             # Only look at select files and directories.
-            # TODO: This needs to be expanded.
-            if not os.path.basename(dirpath) in ['env', 'package.env', \
-                    'package.accept_keywords', 'package.use', \
-                    'package.mask', 'package.unmask']:
+            if not os.path.basename(dirpath) in WorldConf.manageddirs:
                 continue
 
             for f in filenames:
