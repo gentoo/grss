@@ -93,25 +93,54 @@ def install_kernel(version = 'latest', logfile = CONST.LOGFILE):
     os.chdir(cwd)
 
 
-def usage(rc=1):
-    usage = """
-usage: grsup [pkg(s)]       : update @world or pkg(s) if given
-       grsup [-r|-d] pkg(s) : re-install or delete pkg(s)
+def usage(rc=1, extra=""):
+    use = """
+usage: grsup [-l] [pkg(s)]  : update @world or pkg(s) if given
+                            : prefer binpkgs unless -l is given
+       grsup [-l] -r pkg(s) : re-install pkg(s)
+                            : prefer binpkgs unless -l is given
+       grsup -d pkg(s)      : delete pkg(s)
        grsup -D             : download all @world pkgs, don't install
        grsup -k <version>   : install kernel <version> or 'latest'
        grsup -h             : print this help
 """
-    print(usage)
+    if extra:
+        print('\nCombination of parameters invalid: %s' % extra)
+    print(use)
     sys.exit(rc)
+
+
+def sanitize(opts, x):
+    lopt = ('-l','')
+    singleflags = [ '-d', '-D', '-k', '-h' ]
+    noargsflags = [ '-D', '-k', '-h' ]
+    for o, a in opts:
+        if o in singleflags and len(opts) > 1:
+            usage(extra=' '.join(sys.argv[1:]))
+        if o in noargsflags and len(x) > 0:
+            usage(extra=' '.join(sys.argv[1:]))
+        if ( o == '-r' or o == '-d')  and len(x) == 0:
+            usage(extra=' '.join(sys.argv[1:]))
+        if o == '-r' and len(opts) > 2:
+            usage(extra=' '.join(sys.argv[1:]))
+        if o == '-r' and len(opts) == 2 and not lopt in opts:
+            usage(extra=' '.join(sys.argv[1:]))
 
 
 def main():
     myaction, myopts, myfiles = parse_opts(sys.argv[1:])
 
     try:
-        opts, x = getopt(sys.argv[1:], 'Ck:rdh')
+        opts, x = getopt(sys.argv[1:], 'lDk:rdh')
+        sanitize(opts, x)
     except GetoptError:
         usage()
+
+    do_local = False
+    lopt = ('-l','')
+    if lopt in opts:
+        do_local = True
+        opts.remove(lopt)
 
     do_install_kernel = False
     if len(opts) == 0:
@@ -120,31 +149,24 @@ def main():
             myfiles = ['@world']
         args.extend(myfiles)
     else:
-        exclude = 0
         for o, a in opts:
             if o == '-h':
                 usage(rc=0)
             elif o == '-r':
-                if len(myfiles) == 0 or exclude > 1:
-                    usage()
                 args = ['-1', '-g', '-K', '-D', '-q']
                 args.extend(myfiles)
-                exclude += 1
             elif o == '-d':
-                if len(myfiles) == 0 or exclude > 1:
-                    usage()
                 args = ['-C', '-q']
                 args.extend(myfiles)
-                exclude += 1
             elif o == '-D':
-                if len(myfiles) > 0:
-                    usage()
                 args = ['-g', '-e', '-f', '-q', '@world']
             elif o == '-k':
-                if len(sys.argv[1:]) != 2:
-                    usage()
                 version = a
                 do_install_kernel = True
+
+    if do_local:
+        args.remove('-g')
+        args.remove('-K')
 
     if len(CONST.names) > 1:
         sys.stderr.write('More than one GRS specified in systems.conf.  Using the first one.\n')
