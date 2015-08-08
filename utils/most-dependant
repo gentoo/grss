@@ -1,13 +1,20 @@
 #!/usr/bin/env python
 
 import portage
-import getopt, re
-import os, shlex, shutil, sys, subprocess
+import os
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+
 from copy import deepcopy
+from getopt import gnu_getopt, GetoptError
+
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'ea:pv')
-except getopt.GetoptError as e:
+    opts, args = gnu_getopt(sys.argv[1:], 'ea:pv')
+except GetoptError as e:
     print(e)
     sys.exit(1)
 

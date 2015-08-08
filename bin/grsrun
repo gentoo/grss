@@ -10,7 +10,7 @@ from grs import CONST
 from grs import Execute
 from grs import Interpret
 
-from getopt import getopt, GetoptError
+from getopt import gnu_getopt, GetoptError
 
 
 def usage(rc=1):
@@ -30,7 +30,7 @@ flags:             Release run.  Do every step in build script.
 
 def main():
     try:
-        opts, x = getopt(sys.argv[1:], 'mus:h')
+        opts, x = gnu_getopt(sys.argv[1:], 'mus:h')
     except GetoptError as e:
         usage()
 

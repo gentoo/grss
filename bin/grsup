@@ -8,7 +8,7 @@ import signal
 import sys
 import urllib.request
 
-from getopt import getopt, GetoptError
+from getopt import gnu_getopt, GetoptError
 from html.parser import HTMLParser
 
 from grs import CONST
@@ -131,7 +131,7 @@ def main():
     myaction, myopts, myfiles = parse_opts(sys.argv[1:])
 
     try:
-        opts, x = getopt(sys.argv[1:], 'lDk:rdh')
+        opts, x = gnu_getopt(sys.argv[1:], 'lDk:rdh')
         sanitize(opts, x)
     except GetoptError:
         usage()
