@@ -74,13 +74,22 @@ class WorldConf():
                 slot = slotvar
             slot_atoms.append(re.sub('[/:]', '_', '%s:%s' % (p, slot)))
 
+        # Also let's get a list of all the possible canonical file names
+        config = configparser.RawConfigParser(delimiters=':', allow_no_value=True, comment_prefixes=None)
+        config.read(CONST.WORLD_CONFIG)
+        canon = []
+        for s in config.sections():
+            p_slot_atom = re.sub('[/:]', '_', s)
+            canon.append(p_slot_atom)
+
         # Walk through all files in /etc/portage and remove any files for uninstalled pkgs.
         for dirpath, dirnames, filenames in os.walk(CONST.PORTAGE_CONFIGDIR):
             # Only look at select files and directories.
             if not os.path.basename(dirpath) in WorldConf.manageddirs:
                 continue
 
+            # Remove all filenames that match uninstalled slot_atoms or are not in the canon
             for f in filenames:
                 fpath = os.path.realpath(os.path.join(dirpath, f))
-                if f in slot_atoms:
+                if f in slot_atoms or not f in canon:
                     os.remove(fpath)
