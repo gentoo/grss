@@ -105,7 +105,7 @@ usage: grsup [-l] [pkg(s)]  : update @world or pkg(s) if given
        grsup -h             : print this help
 """
     if extra:
-        print('\nCombination of parameters invalid: %s' % extra)
+        print('\nInvalid combination of parameters: %s' % extra)
     print(use)
     sys.exit(rc)
 
