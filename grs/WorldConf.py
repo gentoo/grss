@@ -13,7 +13,7 @@ class WorldConf():
 
     # TODO: This needs to be expanded.
     manageddirs = ['env', 'package.env', 'package.accept_keywords', \
-        'package.use', 'package.mask', 'package.unmask']:
+        'package.use', 'package.mask', 'package.unmask']
 
     @staticmethod
     def install():
@@ -25,6 +25,8 @@ class WorldConf():
         # orphaned and can inject flags/envvars which are problematic.
         for directory in WorldConf.manageddirs:
             dpath = os.path.join(CONST.PORTAGE_CONFIGDIR, directory)
+            if not os.path.isdir(dpath):
+                continue
             for f in os.listdir(dpath):
                 fpath = os.path.join(dpath, f)
                 if os.path.isfile(fpath):
