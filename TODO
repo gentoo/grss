@@ -6,9 +6,3 @@ to prevent wierdness in case /usr/portage changes during a run.
 2. Upon building a system we should make use of the binpkgs in CONST.TMPDIR + GRS name
 as a time saver.  This is something to go into the build scripts in the GRS repo and not
 in the GRS suite.
-
-3. grsup and clean-worldconf should remove files form /etc/portage that correspond to
-sections that were removed from world.conf since the last time grsup or install-worldconf
-was run.  Currently, if a section is removed from world.conf on the remote repo, then any
-files in canonical form in /etc/portage are orphaned.  This can lead to trouble because
-the the flags they define are not removed.  This needs to be fixed in clean() in grs/WorldConf.py.
