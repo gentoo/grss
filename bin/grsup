@@ -233,7 +233,7 @@ def main():
         if os.path.isfile(oldmakeconf):
             if not filecmp.cmp(newmakeconf, oldmakeconf):
                 print('New make.conf differs from local version. Backing up as make.conf.old')
-                shutil(oldmakeconf, '%s.old' % oldmakeconf)
+                shutil.copy(oldmakeconf, '%s.old' % oldmakeconf)
         shutil.copy(newmakeconf, oldmakeconf)
 
     # 1. Install all world.conf files.
