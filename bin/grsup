@@ -211,8 +211,10 @@ def main():
     # If a raw new make.conf exists, pick it, else pick the highest cycle no.
     newmakeconf = os.path.join(libdir, 'core/etc/portage/make.conf')
     oldmakeconf = os.path.join(CONST.PORTAGE_CONFIGDIR, 'make.conf')
+
+    do_copy = False
     if os.path.isfile(newmakeconf):
-        shutil.copy(newmakeconf, oldmakeconf)
+        do_copy = True
     else:
         cycled_files = {}
         for f in glob.glob('%s.*' % newmakeconf):
@@ -222,10 +224,19 @@ def main():
                 cycled_files[cycle_no] = m.group(0)
         try:
             max_cycle_no = max(cycled_files)
-            shutil.copy(cycled_files[max_cycle_no], oldmakeconf)
-        except ValueError:
+            newmakeconf = cycled_files[max_cycle_no]
+            do_copy = True
+        except ValueError: # thrown by max() if cycled_files is empty
             pass
 
+    if do_copy:
+        if os.path.isfile(oldmakeconf):
+            if not filecmp.cmp(newmakeconf, oldmakeconf):
+                print('New make.conf differs from local version. Backing up as make.conf.old')
+                shutil(oldmakeconf, '%s.old' % oldmakeconf)
+        shutil.copy(newmakeconf, oldmakeconf)
+
+    # Check if we left behind a dirty /etc/portage
     if os.path.isfile(CONST.PORTAGE_DIRTYFILE):
         WorldConf.clean()
     open(CONST.PORTAGE_DIRTYFILE, 'a').close()
