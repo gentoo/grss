@@ -30,7 +30,7 @@ from getopt import gnu_getopt, GetoptError
 
 
 def usage(rc=1):
-    usage = """
+    use = """
 usage: grsrun [-m|-u|-h|-s <name>]
 
 flags:             Release run.  Do every step in build script.
@@ -39,7 +39,7 @@ flags:             Release run.  Do every step in build script.
      : -s <name>.  Only run for GRS system <name>.
      : -h          Print this help file.
 """
-    print(usage)
+    print(use)
     sys.exit(rc)
 
 
