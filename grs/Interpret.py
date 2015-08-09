@@ -106,7 +106,6 @@ class Interpret(Daemon):
         signal.signal(signal.SIGTERM, handler)
 
         # Grab all the GRS namespace variables
-        nameserver  = CONST.nameservers[self.run_number]
         repo_uri    = CONST.repo_uris[self.run_number]
         stage_uri   = CONST.stage_uris[self.run_number]
 
@@ -126,7 +125,7 @@ class Interpret(Daemon):
         sy = Synchronize(repo_uri, name, libdir, logfile)
         se = Seed(stage_uri, tmpdir, portage_configroot, package, logfile)
         md = MountDirectories(portage_configroot, package, logfile)
-        po = Populate(nameserver, libdir, workdir, portage_configroot, logfile)
+        po = Populate(libdir, workdir, portage_configroot, logfile)
         ru = RunScript(libdir, portage_configroot, logfile)
         pc = PivotChroot(tmpdir, portage_configroot, logfile)
         ke = Kernel(libdir, portage_configroot, kernelroot, package, logfile)

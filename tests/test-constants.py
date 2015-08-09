@@ -42,7 +42,6 @@ if __name__ == "__main__":
     del CONST.I_AM_NEW
     assert CONST.I_AM_NEW == original
 
-    print(CONST.nameservers)
     print(CONST.repo_uris)
     print(CONST.stage_uris)
     print(CONST.names)

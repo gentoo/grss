@@ -26,7 +26,6 @@ class Constants():
     """ Read a global configuration file and set/override constants for
         each GRS spec.  These constants are exported in the form:
 
-            CONST.nameservers[x] contains the namserver for the xth GRS spec
             CONST.repo_uris[x] contains the repo_uri for the xth GRS spec
             etc.
 
@@ -44,13 +43,14 @@ class Constants():
         kernelroot : /tmp/kernel_src_tree
 
         [my-cool-server]
-        nameserver : 192.168.100.1
+        package : /var/tmp/my-packages
 
         Then CONST.kernelroots[0] is '/tmp/kernel_src_tree' rather than the
         default value '/var/tmp/grs/my-cool-desktop/kernel'.  The remainder
         of the constants default as delineated in the space[] dictionary with
         %s replaced by 'my-cool-desktop'.  Similarly CONST.my-cool-servers[1]
-        is 192.168.100.1 rather than 8.8.8.8.
+        has package directory '/var/tmp/my-package' rather than the default
+        value '/var/tmp/grs/my-cool-server/packages',
 
         Finally, the that class overrides __setattr__, __gettattr__ and
         __delattr__ so that you cannot add/change/delete constants in
@@ -75,7 +75,6 @@ class Constants():
 
         # This is the space of all possible constants for any given GRS namespace
         space = {
-            'nameserver'          : '8.8.8.8',
             'repo_uri'            : 'git://anongit.gentoo.org/proj/grs.git',
             'stage_uri'           : default_stage_uri,
             'libdir'              : '/var/lib/grs/%s',

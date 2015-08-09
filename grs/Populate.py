@@ -27,16 +27,12 @@ class Populate():
         for a particular cycle number.
     """
 
-    def __init__(self, nameserver, libdir = CONST.LIBDIR, workdir = CONST.WORKDIR, \
+    def __init__(self, libdir = CONST.LIBDIR, workdir = CONST.WORKDIR, \
             portage_configroot = CONST.PORTAGE_CONFIGROOT, logfile = CONST.LOGFILE):
-        self.nameserver = nameserver
         self.libdir = libdir
         self.workdir = workdir
         self.portage_configroot = portage_configroot
         self.logfile = logfile
-        # We need /etc and /etc/resolv.conf for the system's portage configroot.
-        self.etc = os.path.join(self.portage_configroot, 'etc')
-        self.resolv_conf = os.path.join(self.etc, 'resolv.conf')
 
 
     def populate(self, cycle = True):
@@ -54,11 +50,6 @@ class Populate():
         # Copy from the workdir to the system's portage configroot.
         cmd = 'rsync -av %s/ %s' % (self.workdir, self.portage_configroot)
         Execute(cmd, timeout=60, logfile = self. logfile)
-
-        # Add /etc/resolv.conf.  We need this when we emerge within the chroot.
-        os.makedirs(self.etc, mode=0o755, exist_ok=True)
-        with open(self.resolv_conf, 'w') as f:
-            f.write('nameserver %s' % self.nameserver)
 
 
     def select_cycle(self, cycle):
