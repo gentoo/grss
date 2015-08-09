@@ -205,6 +205,24 @@ def main():
     newconf = '%s/core%s' % (libdir, CONST.WORLD_CONFIG)
     shutil.copy(newconf, CONST.WORLD_CONFIG)
 
+    # Copy the new make.conf to CONST.PORTAGE_CONFIGDIR
+    # If a raw new make.conf exists, pick it, else pick the highest cycle no.
+    newmakeconf = os.path.join(libdir, 'core/etc/portage/make.conf')
+    if os.path.isfile(newmakeconf):
+        shutil.copy(newmakeconf, CONST.PORTAGE_CONFIGDIR)
+    else:
+        cycled_files = {}
+        for f in glob.glob('%s.*' % newmakeconf):
+            m = re.search('^(.+)\.CYCLE\.(\d+)', f)
+            if m:
+                cycle_no = int(m.group(2))
+                cycled_files[cycle_no] = m.group(0)
+        try:
+            max_cycle_no = max(cycled_files)
+            shutil.copy(cycled_files[max_cycle_no], CONST.PORTAGE_CONFIGDIR)
+        except ValueError:
+            pass
+
     if os.path.isfile(CONST.PORTAGE_DIRTYFILE):
         WorldConf.clean()
     open(CONST.PORTAGE_DIRTYFILE, 'a').close()
