@@ -80,9 +80,16 @@ class Kernel():
         image_dir     = os.path.join(self.kernelroot, gentoo_version)
         boot_dir      = os.path.join(image_dir, 'boot')
         modprobe_dir  = os.path.join(image_dir, 'etc/modprobe.d')
-        # TODO: modules_dir really needs $(get_libdir), eg /lib64.
-        # For example, this breaks on amd64 multilib.
         modules_dir   = os.path.join(image_dir, 'lib/modules')
+        # Prepare tarball filename and path.  If the tarball already exists,
+        # don't rebuild/reinstall it.  Note: It should have been installed to
+        # the system's portage configroot when it was first built, so no need
+        # to reinstall it.
+        linux_images = os.path.join(self.package, 'linux-images')
+        tarball_name = 'linux-image-%s.tar.xz' % gentoo_version
+        tarball_path = os.path.join(linux_images, tarball_name)
+        if os.path.isfile(tarball_path):
+            return
 
         # Remove any old kernel image directory and create a boot directory.
         # Note genkernel assumes a boot directory is present.
@@ -126,15 +133,9 @@ class Kernel():
         Execute(cmd, timeout=60, logfile=self.logfile)
 
         # Tar up the kernel image and modules and place them in package/linux-images
-        linux_images = os.path.join(self.package, 'linux-images')
         os.makedirs(linux_images, mode=0o755, exist_ok=True)
-        tarball_name = 'linux-image-%s.tar.xz' % gentoo_version
-        tarball_path = os.path.join(linux_images, tarball_name)
-
         cwd = os.getcwd()
         os.chdir(image_dir)
-        if os.path.isfile(tarball_path):
-            os.unlink(tarball_path)
         cmd = 'tar -Jcf %s .' % tarball_path
         Execute(cmd, timeout=600, logfile=self.logfile)
         os.chdir(cwd)
