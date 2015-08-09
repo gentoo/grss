@@ -17,6 +17,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import copy
+import glob
+import filecmp
 import os
 import re
 import shutil
@@ -208,8 +210,9 @@ def main():
     # Copy the new make.conf to CONST.PORTAGE_CONFIGDIR
     # If a raw new make.conf exists, pick it, else pick the highest cycle no.
     newmakeconf = os.path.join(libdir, 'core/etc/portage/make.conf')
+    oldmakeconf = os.path.join(CONST.PORTAGE_CONFIGDIR, 'make.conf')
     if os.path.isfile(newmakeconf):
-        shutil.copy(newmakeconf, CONST.PORTAGE_CONFIGDIR)
+        shutil.copy(newmakeconf, oldmakeconf)
     else:
         cycled_files = {}
         for f in glob.glob('%s.*' % newmakeconf):
@@ -219,7 +222,7 @@ def main():
                 cycled_files[cycle_no] = m.group(0)
         try:
             max_cycle_no = max(cycled_files)
-            shutil.copy(cycled_files[max_cycle_no], CONST.PORTAGE_CONFIGDIR)
+            shutil.copy(cycled_files[max_cycle_no], oldmakeconf)
         except ValueError:
             pass
 
