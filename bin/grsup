@@ -236,9 +236,9 @@ def main():
                 shutil(oldmakeconf, '%s.old' % oldmakeconf)
         shutil.copy(newmakeconf, oldmakeconf)
 
-    # Check if we left behind a dirty /etc/portage
-    if os.path.isfile(CONST.PORTAGE_DIRTYFILE):
-        WorldConf.clean()
+    # 1. Install all world.conf files.
+    # 2. Do the emerge.
+    # 3. Cleanup unused /etc/portage files.
     open(CONST.PORTAGE_DIRTYFILE, 'a').close()
     WorldConf.install()
 
