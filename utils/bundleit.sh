@@ -6,4 +6,4 @@ fi
 
 tag=$1
 ver=${tag/v}
-git archive --format=tar --prefix=grss-${ver}/ $tag | gzip - > ../grss-${ver}.tar.gz
+git archive --format=tar --prefix=grs-${ver}/ $tag | gzip - > ../grs-${ver}.tar.gz
