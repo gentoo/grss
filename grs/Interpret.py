@@ -24,6 +24,7 @@ import time
 
 from grs.Constants import CONST
 from grs.Daemon import Daemon
+from grs.ISOIt import ISOIt
 from grs.Log import Log
 from grs.Kernel import Kernel
 from grs.MountDirectories import MountDirectories
@@ -130,6 +131,7 @@ class Interpret(Daemon):
         pc = PivotChroot(tmpdir, portage_configroot, logfile)
         ke = Kernel(libdir, portage_configroot, kernelroot, package, logfile)
         bi = TarIt(name, portage_configroot, logfile)
+        io = ISOIt(name, libdir, workdir, portage_configroot, logfile)
 
         # Just in case /var/tmp/grs doesn't already exist.
         os.makedirs(tmpdir, mode=0o755, exist_ok=True)
@@ -193,7 +195,10 @@ class Interpret(Daemon):
                     obj = None
 
                 # This long concatenated if is where the semantics of the
-                # build script are implemented.
+                # build script are implemented.  Note: 'hashit' can only come
+                # after 'tarit' or 'isoit' so that it knows the medium_name
+                # to hash, ie whether its a .tar.xz or a .iso
+                medium_type = None
                 if verb == '':
                     stampit(progress)
                     continue
@@ -244,11 +249,27 @@ class Interpret(Daemon):
                     else:
                         smartlog(l, obj, False)
                         bi.tarit()
+                    medium_type = 'tarit'
+                elif verb == 'isoit':
+                    # 'isoit' can either be just a verb,
+                    # or a 'verb obj' pair.
+                    if obj:
+                        smartlog(l, obj, True)
+                        io.isoit(obj)
+                    else:
+                        smartlog(l, obj, False)
+                        io.isoit()
+                    medium_type = 'isoit'
                 elif verb == 'hashit':
                     if smartlog(l, obj, False):
                         stampit(progress)
                         continue
-                    bi.hashit()
+                    if medium_type == 'tarit':
+                        bi.hashit()
+                    elif medium_type == 'isoit':
+                        io.hashit()
+                    else:
+                        raise Exception('Unknown medium to hash.')
                 else:
                     lo.log('Bad command: %s' % l)
 

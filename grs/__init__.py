@@ -21,6 +21,7 @@ from grs.Daemon import Daemon
 from grs.Execute import Execute
 from grs.HashIt import HashIt
 from grs.Interpret import Interpret
+from grs.ISOIt import ISOIt
 from grs.Log import Log
 from grs.Kernel import Kernel
 from grs.MountDirectories import MountDirectories
