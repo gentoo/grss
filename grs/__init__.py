@@ -16,10 +16,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from grs.TarIt import TarIt
 from grs.Constants import CONST
 from grs.Daemon import Daemon
 from grs.Execute import Execute
+from grs.HashIt import HashIt
 from grs.Interpret import Interpret
 from grs.Log import Log
 from grs.Kernel import Kernel
@@ -30,4 +30,5 @@ from grs.Rotator import Rotator
 from grs.RunScript import RunScript
 from grs.Synchronize import Synchronize
 from grs.Seed import Seed
+from grs.TarIt import TarIt
 from grs.WorldConf import WorldConf
