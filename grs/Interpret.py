@@ -158,6 +158,7 @@ class Interpret(Daemon):
         build_script = os.path.join(libdir, 'build')
         with open(build_script, 'r') as s:
             line_number = 0
+            medium_type = None
             for l in s.readlines():
                 line_number += 1
 
@@ -198,7 +199,6 @@ class Interpret(Daemon):
                 # build script are implemented.  Note: 'hashit' can only come
                 # after 'tarit' or 'isoit' so that it knows the medium_name
                 # to hash, ie whether its a .tar.xz or a .iso
-                medium_type = None
                 if verb == '':
                     stampit(progress)
                     continue
