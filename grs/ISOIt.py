@@ -45,6 +45,7 @@ class ISOIt(HashIt):
         # Paths to where we'll build busybox and the initramfs.
         busybox_root     = os.path.join(self.tmpdir, 'busybox')
         busybox_path     = os.path.join(busybox_root, 'bin/busybox')
+        makeprofile_path = os.path.join(busybox_root, 'etc/portage/make.profile')
         savedconfig_dir  = os.path.join(busybox_root, 'etc/portage/savedconfig/sys-apps')
         savedconfig_path = os.path.join(savedconfig_dir, 'busybox')
         busybox_config   = os.path.join(self.libdir, 'scripts/busybox-config')
@@ -52,11 +53,13 @@ class ISOIt(HashIt):
         # Remove any old busybox build directory and prepare new one.
         shutil.rmtree(busybox_root, ignore_errors=True)
         os.makedirs(savedconfig_dir, mode=0o755, exist_ok=True)
-        shutil.copyfile(busybox_config, savedconfig_path)
+        shutil.copy(busybox_config, savedconfig_path)
 
         # Emerge busybox.
+        os.symlink('/usr/portage/profiles/hardened/linux/amd64', makeprofile_path)
         cmd = 'emerge --nodeps -1q busybox'
-        emerge_env = { 'USE' : '-* savedconfig', 'ROOT' : busybox_root }
+        emerge_env = { 'USE' : '-* savedconfig', 'ROOT' : busybox_root,
+            'PORTAGE_CONFIGROOT' : busybox_root }
         Execute(cmd, timeout=600, extra_env=emerge_env, logfile=self.logfile)
 
         # Remove any old initramfs root and prepare a new one.
@@ -71,10 +74,12 @@ class ISOIt(HashIt):
         # Copy the static busybox to the initramfs root.
         # TODO: we are assuming a static busybox, so we should check.
         busybox_initramfs_path = os.path.join(initramfs_root, 'bin/busybox')
-        shutil.copyfile(busybox_path, busybox_initramfs_path)
+        shutil.copy(busybox_path, busybox_initramfs_path)
         os.chmod(busybox_initramfs_path, 0o0755)
         cmd = 'chroot %s /bin/busybox --install -s' % initramfs_root
         Execute(cmd, timeout=60, logfile=self.logfile)
+
+        # Copy the init script to the initramfs root.
         initscript_path = os.path.join(self.libdir, 'scripts/initramfs-init')
         init_initramfs_path = os.path.join(initramfs_root, 'init')
         shutil.copy(initscript_path, init_initramfs_path)
@@ -126,8 +131,8 @@ class ISOIt(HashIt):
         cmd = 'emerge --nodeps -1q grub:0'
         emerge_env = { 'USE' : '-* savedconfig', 'ROOT' : grub_root }
         Execute(cmd, timeout=600, extra_env=emerge_env, logfile=self.logfile)
-        shutil.copyfile(eltorito_path, isogrub_dir)
-        shutil.copyfile(menulst_path, isogrub_dir)
+        shutil.copy(eltorito_path, isogrub_dir)
+        shutil.copy(menulst_path, isogrub_dir)
 
         # 5. create the iso image
         args  = '-R '                           # Rock Ridge protocol
