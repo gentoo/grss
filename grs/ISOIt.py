@@ -17,6 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import shutil
 from datetime import datetime
 from grs.Constants import CONST
 from grs.Execute import Execute
@@ -25,10 +26,10 @@ from grs.HashIt import HashIt
 class ISOIt(HashIt):
     """ Create a bootable ISO of the system. """
 
-    def __init__(self, name, libdir = CONST.LIBDIR, workdir = CONST.WORKDIR, \
+    def __init__(self, name, libdir = CONST.LIBDIR, tmpdir = CONST.TMPDIR, \
             portage_configroot = CONST.PORTAGE_CONFIGROOT, logfile = CONST.LOGFILE):
         self.libdir = libdir
-        self.workdir = workdir
+        self.tmpdir = tmpdir
         self.portage_configroot = portage_configroot
         self.logfile = logfile
         # Prepare a year, month and day for a ISO name timestamp.
@@ -42,9 +43,10 @@ class ISOIt(HashIt):
     def initramfs(self, isoboot_dir):
         """ TODO """
         # Paths to where we'll build busybox and the initramfs.
-        busybox_root     = os.path.join(self.workdir, 'busybox')
+        busybox_root     = os.path.join(self.tmpdir, 'busybox')
         busybox_path     = os.path.join(busybox_root, 'bin/busybox')
-        savedconfig_path = os.path.join(busybox_root, 'etc/portage/savedconfig/sys-apps/busybox')
+        savedconfig_dir  = os.path.join(busybox_root, 'etc/portage/savedconfig/sys-apps')
+        savedconfig_path = os.path.join(savedconfig_dir, 'busybox')
         busybox_config   = os.path.join(self.libdir, 'scripts/busybox-config')
 
         # Remove any old busybox build directory and prepare new one.
@@ -53,26 +55,30 @@ class ISOIt(HashIt):
         shutil.copyfile(busybox_config, savedconfig_path)
 
         # Emerge busybox.
-        cmd = 'emerge --nodeps -1 busybox'
+        cmd = 'emerge --nodeps -1q busybox'
         emerge_env = { 'USE' : '-* savedconfig', 'ROOT' : busybox_root }
         Execute(cmd, timeout=600, extra_env=emerge_env, logfile=self.logfile)
 
         # Remove any old initramfs root and prepare a new one.
-        initramfs_root = os.path.join(self.workdir, 'initramfs')
+        initramfs_root = os.path.join(self.tmpdir, 'initramfs')
         shutil.rmtree(initramfs_root, ignore_errors=True)
         root_paths = ['bin', 'dev', 'etc', 'mnt/cdrom', 'mnt/squashfs', 'mnt/tmpfs',
             'proc', 'sbin', 'sys', 'tmp', 'usr/bin', 'usr/sbin', 'var', 'var/run']
         for p in root_paths:
             d = os.path.join(initramfs_root, p)
-            os.makdirs(d, mode=0o755, exist_ok=True)
+            os.makedirs(d, mode=0o755, exist_ok=True)
 
         # Copy the static busybox to the initramfs root.
         # TODO: we are assuming a static busybox, so we should check.
-        shutil.copyfile(busybox_path, os.join.path(initramfs_root, 'bin/busybox'))
+        busybox_initramfs_path = os.path.join(initramfs_root, 'bin/busybox')
+        shutil.copyfile(busybox_path, busybox_initramfs_path)
+        os.chmod(busybox_initramfs_path, 0o0755)
         cmd = 'chroot %s /bin/busybox --install -s' % initramfs_root
         Execute(cmd, timeout=60, logfile=self.logfile)
         initscript_path = os.path.join(self.libdir, 'scripts/initramfs-init')
-        shutil.copy(initscript_path, initramfs_root)
+        init_initramfs_path = os.path.join(initramfs_root, 'init')
+        shutil.copy(initscript_path, init_initramfs_path)
+        os.chmod(init_initramfs_path, 0o0755)
 
         # TODO: we are assuming a static kernel and so not copying in
         # any modules.  This is where we should copy in modules.
@@ -81,8 +87,9 @@ class ISOIt(HashIt):
         initramfs_path = os.path.join(isoboot_dir, 'initramfs')
         cwd = os.getcwd()
         os.chdir(initramfs_root)
-        cmd = 'find . | cpio -H newc -o | gzip -9 > %s' % initramfs_path
-        Execute(cmd, timeout=600, logfile=self.logfile)
+        cmd = 'find . -print | cpio -H newc -o | gzip -9 > %s' % initramfs_path
+        # Can't pipe commands, so we'll have to find another way
+        #Execute(cmd, timeout=600, logfile=self.logfile)
         os.chdir(cwd)
 
 
@@ -91,9 +98,10 @@ class ISOIt(HashIt):
         if alt_name:
             self.medium_name = '%s-%s%s%s.iso' % (alt_name, self.year, self.month, self.day)
             self.digest_name = '%s.DIGESTS' % self.medium_name
-        iso_dir     = os.path.join(self.workdir, 'iso')
+        iso_dir     = os.path.join(self.tmpdir, 'iso')
         isoboot_dir = os.path.join(iso_dir, 'boot')
         isogrub_dir = os.path.join(isoboot_dir, 'grub')
+        shutil.rmtree(iso_dir, ignore_errors=True)
         os.makedirs(isogrub_dir, mode=0o755, exist_ok=False)
 
         # 1. build initramfs image and copy it in
@@ -112,10 +120,10 @@ class ISOIt(HashIt):
         Execute(cmd, timeout=600, logfile=self.logfile)
 
         # 4. Emerge grub:0 to grab stage2_eltorito
-        grub_root     = os.path.join(self.workdir, 'grub')
+        grub_root     = os.path.join(self.tmpdir, 'grub')
         eltorito_path = os.path.join(grub_root, 'boot/grub/stage2_eltorito')
         menulst_path  = os.path.join(self.libdir, 'scripts/menu.lst')
-        cmd = 'emerge --nodeps -1 grub:0'
+        cmd = 'emerge --nodeps -1q grub:0'
         emerge_env = { 'USE' : '-* savedconfig', 'ROOT' : grub_root }
         Execute(cmd, timeout=600, extra_env=emerge_env, logfile=self.logfile)
         shutil.copyfile(eltorito_path, isogrub_dir)
@@ -127,5 +135,6 @@ class ISOIt(HashIt):
         args += '-no-emul-boot '                # No disk emulation for El Torito
         args += '-boot-load-size 4 '            # 4x512-bit sectors for no-emulation mode
         args += '-boot-info-table '             # Create El Torito boot info table
-        cmd = 'mkisofs %s -o %s %s' % (args, self.medium_pathname, iso_dir)
+        medium_path = os.path.join(self.tmpdir, self.medium_name)
+        cmd = 'mkisofs %s -o %s %s' % (args, medium_path, iso_dir)
         Execute(cmd, timeout=600, logfile=self.logfile)

@@ -131,7 +131,7 @@ class Interpret(Daemon):
         pc = PivotChroot(tmpdir, portage_configroot, logfile)
         ke = Kernel(libdir, portage_configroot, kernelroot, package, logfile)
         bi = TarIt(name, portage_configroot, logfile)
-        io = ISOIt(name, libdir, workdir, portage_configroot, logfile)
+        io = ISOIt(name, libdir, tmpdir, portage_configroot, logfile)
 
         # Just in case /var/tmp/grs doesn't already exist.
         os.makedirs(tmpdir, mode=0o755, exist_ok=True)
