@@ -117,7 +117,8 @@ class ISOIt(HashIt):
         kernelimage_dir  = os.path.join(self.portage_configroot, 'boot')
         kernelimage_path = os.path.join(kernelimage_dir, 'kernel')
         shutil.copy(kernelimage_path, isoboot_dir)
-        shutil.rmtree(kernelimage_dir, ignore_errors=True)
+        # If this fails, we'll have to rebuild the kernel!
+        #shutil.rmtree(kernelimage_dir, ignore_errors=True)
 
         # 3. make the squashfs image and copy it into the iso/boot
         squashfs_path = os.path.join(iso_dir, 'rootfs')
