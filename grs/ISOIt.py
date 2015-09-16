@@ -93,8 +93,8 @@ class ISOIt(HashIt):
         cwd = os.getcwd()
         os.chdir(initramfs_root)
         cmd = 'find . -print | cpio -H newc -o | gzip -9 > %s' % initramfs_path
-        # Can't pipe commands, so we'll have to find another way
-        #Execute(cmd, timeout=600, logfile=self.logfile)
+        # Piped commands must be run in a shell.
+        Execute(cmd, timeout=600, logfile=self.logfile, shell=True)
         os.chdir(cwd)
 
 

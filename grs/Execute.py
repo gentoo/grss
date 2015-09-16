@@ -27,7 +27,8 @@ from grs.Constants import CONST
 class Execute():
     """ Execute a shell command """
 
-    def __init__(self, cmd, timeout = 1, extra_env = {}, failok = False, logfile = CONST.LOGFILE):
+    def __init__(self, cmd, timeout = 1, extra_env = {}, failok = False, shell = False \
+        logfile = CONST.LOGFILE):
         """ Execute a shell command.
 
             cmd         - Simple string of the command to be execute as a
@@ -54,15 +55,18 @@ class Execute():
             except ProcessLookupError:
                 pass
 
-        args = shlex.split(cmd)
+        if shell:
+            args = cmd
+        else:
+            args = shlex.split(cmd)
         extra_env = dict(os.environ, **extra_env)
 
         if logfile:
             f = open(logfile, 'a')
-            proc = subprocess.Popen(args, stdout=f, stderr=f, env=extra_env)
+            proc = subprocess.Popen(args, stdout=f, stderr=f, env=extra_env, shell=shell)
         else:
             f = sys.stderr
-            proc = subprocess.Popen(args, env=extra_env)
+            proc = subprocess.Popen(args, env=extra_env, shell=shell)
 
         try:
             proc.wait(timeout)
