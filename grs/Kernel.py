@@ -40,12 +40,15 @@ class Kernel():
     def parse_kernel_config(self):
         """ Parse the version to be built/installed from the kernel-config file. """
         with open(self.kernel_config, 'r') as f:
-            for i in range(3):
-                line = f.readline()
+            lines = f.readlines()
+        # Are we building a modular kernel or statically linked?
+        has_modules = 'CONFIG_MODULES=y\n' in lines
+        # The third line is the version line in the kernel config file.
+        version_line = lines[2]
         # The version line looks like the following:
         # Linux/x86 4.0.6-hardened-r2 Kernel Configuration
         # The 2nd group contains the version.
-        m = re.search('^#\s+(\S+)\s+(\S+).+$', line)
+        m = re.search('^#\s+(\S+)\s+(\S+).+$', version_line)
         gentoo_version = m.group(2)
         try:
             # Either the verison is of the form '4.0.6-hardened-r2' with two -'s
@@ -61,7 +64,7 @@ class Kernel():
             flavor = m.group(2)
             pkg_name = flavor + '-sources-' + vanilla_version
         pkg_name = '=sys-kernel/' + pkg_name
-        return (gentoo_version, pkg_name)
+        return (gentoo_version, pkg_name, has_modules)
 
 
     def kernel(self):
@@ -72,7 +75,7 @@ class Kernel():
             and finally installs it to the system's portage configroot.
         """
         # Grab the parsed verison and pkg atom.
-        (gentoo_version, pkg_name) = self.parse_kernel_config()
+        (gentoo_version, pkg_name, has_modules) = self.parse_kernel_config()
 
         # Prepare the paths to where we'll emerge and build the kernel,
         # as well as paths for genkernel.
@@ -117,10 +120,14 @@ class Kernel():
         cmd += '--bootdir=%s '       % boot_dir
         cmd += '--module-prefix=%s ' % image_dir
         cmd += '--modprobedir=%s '   % modprobe_dir
-        cmd += 'all'
+        if has_modules:
+            cmd += 'all'
+        else:
+            cmd += 'bzImage'
         Execute(cmd, timeout=None, logfile=self.logfile)
 
         # Strip the modules to shrink their size enormously!
+        # This will do nothing if there is not modules_dir
         for dirpath, dirnames, filenames in os.walk(modules_dir):
             for filename in filenames:
                 if filename.endswith('.ko'):
