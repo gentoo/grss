@@ -120,10 +120,11 @@ class ISOIt(HashIt):
         # If this fails, we'll have to rebuild the kernel!
         #shutil.rmtree(kernelimage_dir, ignore_errors=True)
 
-        # 3. make the squashfs image and copy it into the iso/boot
+        # 3. Make the squashfs image and copy it into the iso/boot.
+        # This can take a long time.
         squashfs_path = os.path.join(iso_dir, 'rootfs')
         cmd = 'mksquashfs %s %s -xattrs -comp xz' % (self.portage_configroot, squashfs_path)
-        Execute(cmd, timeout=600, logfile=self.logfile)
+        Execute(cmd, timeout=None, logfile=self.logfile)
 
         # 4. Emerge grub:0 to grab stage2_eltorito
         grub_root     = os.path.join(self.tmpdir, 'grub')
@@ -135,7 +136,7 @@ class ISOIt(HashIt):
         shutil.copy(eltorito_path, isogrub_dir)
         shutil.copy(menulst_path, isogrub_dir)
 
-        # 5. create the iso image
+        # 5. Create the iso image.  This can take a long time.
         args  = '-R '                           # Rock Ridge protocol
         args += '-b boot/grub/stage2_eltorito ' # El Torito boot image
         args += '-no-emul-boot '                # No disk emulation for El Torito
@@ -143,4 +144,4 @@ class ISOIt(HashIt):
         args += '-boot-info-table '             # Create El Torito boot info table
         medium_path = os.path.join(self.tmpdir, self.medium_name)
         cmd = 'mkisofs %s -o %s %s' % (args, medium_path, iso_dir)
-        Execute(cmd, timeout=600, logfile=self.logfile)
+        Execute(cmd, timeout=None, logfile=self.logfile)
