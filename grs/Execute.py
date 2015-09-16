@@ -27,7 +27,7 @@ from grs.Constants import CONST
 class Execute():
     """ Execute a shell command """
 
-    def __init__(self, cmd, timeout = 1, extra_env = {}, failok = False, shell = False \
+    def __init__(self, cmd, timeout = 1, extra_env = {}, failok = False, shell = False, \
         logfile = CONST.LOGFILE):
         """ Execute a shell command.
 
