@@ -25,7 +25,7 @@ from grs.HashIt import HashIt
 class TarIt(HashIt):
     """ Create a tarball of the system. """
 
-    def __init__(self, name, portage_configroot = CONST.PORTAGE_CONFIGROOT, logfile = CONST.LOGFILE):
+    def __init__(self, name, portage_configroot=CONST.PORTAGE_CONFIGROOT, logfile=CONST.LOGFILE):
         self.portage_configroot = portage_configroot
         self.logfile = logfile
         # Prepare a year, month and day for a tarball name timestamp.
@@ -36,7 +36,7 @@ class TarIt(HashIt):
         self.digest_name = '%s.DIGESTS' % self.medium_name
 
 
-    def tarit(self, alt_name = None):
+    def tarit(self, alt_name=None):
         # Create the tarball with the default name unless an alt_name is given.
         if alt_name:
             self.medium_name = '%s-%s%s%s.tar.xz' % (alt_name, self.year, self.month, self.day)

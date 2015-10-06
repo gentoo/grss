@@ -24,7 +24,7 @@ import shutil
 class Rotator():
     """ Super class for rotating files or directories.  """
 
-    def rotate(self, obj, upper_limit = 20):
+    def rotate(self, obj, upper_limit=20):
         """ Does the work of rotating objects fitting the pattern obj.(d+).
 
             obj -> The absolute path to the objects to be rotated.  The
@@ -63,8 +63,8 @@ class Rotator():
             shutil.move(current_obj, next_obj)
 
 
-    def full_rotate(self, obj, upper_limit = 20):
+    def full_rotate(self, obj, upper_limit=20):
         """ Rotate both obj and obj.(d+). """
-        self.rotate(obj, upper_limit = upper_limit)
+        self.rotate(obj, upper_limit=upper_limit)
         if os.path.exists(obj):
             shutil.move(obj, '%s.0' % obj)

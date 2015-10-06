@@ -26,17 +26,17 @@ class MountDirectories():
         portage configroot.
     """
 
-    def __init__(self, portage_configroot = CONST.PORTAGE_CONFIGROOT, \
-            package = CONST.PACKAGE, logfile = CONST.LOGFILE):
+    def __init__(self, portage_configroot=CONST.PORTAGE_CONFIGROOT, \
+            package=CONST.PACKAGE, logfile=CONST.LOGFILE):
         # The order is respected.  Note that 'dev' needs to be mounted beore 'dev/pts'.
         self.directories = [
             'dev',
             'dev/pts',
-            { 'dev/shm' : ( 'tmpfs', 'shm' ) },
+            {'dev/shm' : ('tmpfs', 'shm')},
             'proc',
             'sys',
             'usr/portage',
-            [ package, 'usr/portage/packages' ]
+            [package, 'usr/portage/packages']
         ]
         # Once initiated, we only work with one portage_configroot
         self.portage_configroot = portage_configroot

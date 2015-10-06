@@ -57,21 +57,21 @@ class Constants():
         a GRS namespace.
     """
 
-    def __init__(self, configfile = '/etc/grs/systems.conf'):
+    def __init__(self, configfile='/etc/grs/systems.conf'):
         # If there's no config file, we're dead in the water.
         if not os.path.isfile(configfile):
             raise Exception('Configuration file %s not found\n' % configfile)
 
-        self.config = configparser.ConfigParser(delimiters = ':', comment_prefixes = '#')
+        self.config = configparser.ConfigParser(delimiters=':', comment_prefixes='#')
         self.config.read(configfile)
 
         # These values will probably fail in the future, but that's okay
         # because they really should never be used.  They live outside of
         # any GRS namespace and are just 'defaults'.
-        server    = 'http://distfiles.gentoo.org/'
-        stagedir  = 'releases/amd64/autobuilds/current-stage3-amd64-uclibc-hardened/'
+        server = 'http://distfiles.gentoo.org/'
+        stagedir = 'releases/amd64/autobuilds/current-stage3-amd64-uclibc-hardened/'
         stagefile = 'stage3-amd64-uclibc-hardened-20150510.tar.bz2'
-        default_stage_uri =  server + stagedir + stagefile
+        default_stage_uri = server + stagedir + stagefile
 
         # This is the space of all possible constants for any given GRS namespace
         space = {
@@ -129,7 +129,7 @@ class Constants():
 
     # Don't retrieve the original else you can overwrite it,
     # rather deep copy it.
-    def __getattr__(self, key, value = None):
+    def __getattr__(self, key, value=None):
         if key in self.__dict__:
             return deepcopy(self.__dict__[key])
 
@@ -143,26 +143,26 @@ class Constants():
 CONST = Constants()
 
 # Constants outside any GRS namespace.
-CONST.PACKAGE_NAME        = "Gentoo Reference System"
-CONST.PACKAGE_VERSION     = 0.0
+CONST.PACKAGE_NAME = "Gentoo Reference System"
+CONST.PACKAGE_VERSION = 0.0
 CONST.PACKAGE_DESCRIPTION = "Update a GRS by cloning a predefined system."
-CONST.BUG_REPORTS         = 'http://bugs.gentoo.org'
+CONST.BUG_REPORTS = 'http://bugs.gentoo.org'
 
 # The are defaults in case objects of other classes which depend on values
 # of libdir, logfile, etc. are instantiated outside of any namespaces.
 # They should not be needed under normal working condidtions.
-CONST.LIBDIR              = '/var/lib/grs'
-CONST.LOGFILE             = '/var/log/grs.log'
-CONST.TMPDIR              = '/var/tmp/grs'
-CONST.WORKDIR             = '/var/tmp/grs/work'
-CONST.PACKAGE             = '/var/tmp/grs/package'
-CONST.KERNELROOT          = '/var/tmp/grs/kernel'
-CONST.PORTAGE_CONFIGROOT  = '/var/tmp/grs/system'
-CONST.PIDFILE             = '/run/grs.pid'
+CONST.LIBDIR = '/var/lib/grs'
+CONST.LOGFILE = '/var/log/grs.log'
+CONST.TMPDIR = '/var/tmp/grs'
+CONST.WORKDIR = '/var/tmp/grs/work'
+CONST.PACKAGE = '/var/tmp/grs/package'
+CONST.KERNELROOT = '/var/tmp/grs/kernel'
+CONST.PORTAGE_CONFIGROOT = '/var/tmp/grs/system'
+CONST.PIDFILE = '/run/grs.pid'
 
 # These are used by grsup and are hard coded values.
-CONST.PORTAGE_CONFIGDIR   = '/etc/portage'
-CONST.PORTAGE_DIRTYFILE   = '/etc/portage/.grs_dirty'
-CONST.WORLD_CONFIG        = '/etc/grs/world.conf'
-CONST.GRS_CGROUP          = 'grs'
-CONST.GRS_CGROUPDIR       = '/sys/fs/cgroup/grs'
+CONST.PORTAGE_CONFIGDIR = '/etc/portage'
+CONST.PORTAGE_DIRTYFILE = '/etc/portage/.grs_dirty'
+CONST.WORLD_CONFIG = '/etc/grs/world.conf'
+CONST.GRS_CGROUP = 'grs'
+CONST.GRS_CGROUPDIR = '/sys/fs/cgroup/grs'

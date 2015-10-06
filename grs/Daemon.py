@@ -84,7 +84,7 @@ class Daemon:
         # No matter where the exit is initiated, eg from Execute.py
         # we are sure that atexit() will run and delete the pidfile.
         atexit.register(self.delpid)
-        with open(self.pidfile,'w') as pf:
+        with open(self.pidfile, 'w') as pf:
             pf.write('%d\n' % os.getpid())
 
 

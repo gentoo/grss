@@ -24,8 +24,7 @@ from grs.Execute import Execute
 class RunScript():
     """ Run a script within the chroot. """
 
-    def __init__(self, libdir = CONST.LIBDIR, portage_configroot = CONST.PORTAGE_CONFIGROOT, 
-            logfile = CONST.LOGFILE):
+    def __init__(self, libdir=CONST.LIBDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT, logfile=CONST.LOGFILE):
         self.libdir = libdir
         self.portage_configroot = portage_configroot
         self.logfile = logfile

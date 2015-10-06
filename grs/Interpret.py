@@ -79,7 +79,7 @@ class Interpret(Daemon):
             sys.exit(signum + 128)
 
 
-        def smartlog(l, obj, has_obj = True):
+        def smartlog(l, obj, has_obj=True):
             """ This logs whether or not we have a grammatically incorrect
                 directive, or we are doing a mock run, and returns whether
                 or not we should execute the directive:
@@ -103,20 +103,19 @@ class Interpret(Daemon):
 
 
         # Register the signals to terminate the entire process cgroup
-        signal.signal(signal.SIGINT,  handler)
+        signal.signal(signal.SIGINT, handler)
         signal.signal(signal.SIGTERM, handler)
 
         # Grab all the GRS namespace variables
-        repo_uri    = CONST.repo_uris[self.run_number]
-        stage_uri   = CONST.stage_uris[self.run_number]
-
-        name        = CONST.names[self.run_number]
-        libdir      = CONST.libdirs[self.run_number]
-        logfile     = CONST.logfiles[self.run_number]
-        tmpdir      = CONST.tmpdirs[self.run_number]
-        workdir     = CONST.workdirs[self.run_number]
-        package     = CONST.packages[self.run_number]
-        kernelroot  = CONST.kernelroots[self.run_number]
+        repo_uri = CONST.repo_uris[self.run_number]
+        stage_uri = CONST.stage_uris[self.run_number]
+        name = CONST.names[self.run_number]
+        libdir = CONST.libdirs[self.run_number]
+        logfile = CONST.logfiles[self.run_number]
+        tmpdir = CONST.tmpdirs[self.run_number]
+        workdir = CONST.workdirs[self.run_number]
+        package = CONST.packages[self.run_number]
+        kernelroot = CONST.kernelroots[self.run_number]
         portage_configroot = CONST.portage_configroots[self.run_number]
 
         # Initialize all the classes that will run the directives from
@@ -190,7 +189,7 @@ class Interpret(Daemon):
                 try:
                     m = re.search('(\S+)\s+(\S+)', l)
                     verb = m.group(1)
-                    obj  = m.group(2)
+                    obj = m.group(2)
                 except AttributeError:
                     verb = l.strip()
                     obj = None

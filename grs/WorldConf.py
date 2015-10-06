@@ -68,7 +68,7 @@ class WorldConf():
         """
         # We need to look at all portage provide pkgs and all installed pkgs.
         portdb = portage.db[portage.root]["porttree"].dbapi
-        vardb  = portage.db[portage.root]["vartree"].dbapi
+        vardb = portage.db[portage.root]["vartree"].dbapi
 
         # Remove all installed pkgs from the set of all portage packages.
         uninstalled = portdb.cp_all()

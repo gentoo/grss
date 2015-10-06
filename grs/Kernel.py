@@ -27,8 +27,7 @@ from grs.Execute import Execute
 class Kernel():
     """ Build a linux-image pkg and install when building a system. """
 
-    def __init__(self, libdir = CONST.LIBDIR, portage_configroot = CONST.PORTAGE_CONFIGROOT, \
-            kernelroot = CONST.KERNELROOT, package = CONST.PACKAGE, logfile = CONST.LOGFILE):
+    def __init__(self, libdir=CONST.LIBDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT, kernelroot=CONST.KERNELROOT, package=CONST.PACKAGE, logfile=CONST.LOGFILE):
         self.libdir = libdir
         self.portage_configroot = portage_configroot
         self.kernelroot = kernelroot
@@ -80,10 +79,10 @@ class Kernel():
         # Prepare the paths to where we'll emerge and build the kernel,
         # as well as paths for genkernel.
         kernel_source = os.path.join(self.kernelroot, 'usr/src/linux')
-        image_dir     = os.path.join(self.kernelroot, gentoo_version)
-        boot_dir      = os.path.join(image_dir, 'boot')
-        modprobe_dir  = os.path.join(image_dir, 'etc/modprobe.d')
-        modules_dir   = os.path.join(image_dir, 'lib/modules')
+        image_dir = os.path.join(self.kernelroot, gentoo_version)
+        boot_dir = os.path.join(image_dir, 'boot')
+        modprobe_dir = os.path.join(image_dir, 'etc/modprobe.d')
+        modules_dir = os.path.join(image_dir, 'lib/modules')
         # Prepare tarball filename and path.  If the tarball already exists,
         # don't rebuild/reinstall it.  Note: It should have been installed to
         # the system's portage configroot when it was first built, so no need
@@ -101,7 +100,7 @@ class Kernel():
 
         # emerge the kernel source.
         cmd = 'emerge --nodeps -1n %s' % pkg_name
-        emerge_env = { 'USE' : 'symlink', 'ROOT' : self.kernelroot, 'ACCEPT_KEYWORDS' : '**' }
+        emerge_env = {'USE' : 'symlink', 'ROOT' : self.kernelroot, 'ACCEPT_KEYWORDS' : '**'}
         Execute(cmd, timeout=600, extra_env=emerge_env, logfile=self.logfile)
 
         # Build and install the image outside the portage configroot so

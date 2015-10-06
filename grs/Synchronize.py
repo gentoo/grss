@@ -23,7 +23,7 @@ from grs.Execute import Execute
 class Synchronize():
     """ Either clone or pull a remote git repository for a GRS system.  """
 
-    def __init__(self, remote_repo, branch, libdir = CONST.LIBDIR, logfile = CONST.LOGFILE):
+    def __init__(self, remote_repo, branch, libdir=CONST.LIBDIR, logfile=CONST.LOGFILE):
         self.remote_repo = remote_repo
         self.branch = branch
         self.local_repo = libdir

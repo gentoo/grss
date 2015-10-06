@@ -26,8 +26,7 @@ from grs.HashIt import HashIt
 class ISOIt(HashIt):
     """ Create a bootable ISO of the system. """
 
-    def __init__(self, name, libdir = CONST.LIBDIR, tmpdir = CONST.TMPDIR, \
-            portage_configroot = CONST.PORTAGE_CONFIGROOT, logfile = CONST.LOGFILE):
+    def __init__(self, name, libdir=CONST.LIBDIR, tmpdir=CONST.TMPDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT, logfile=CONST.LOGFILE):
         self.libdir = libdir
         self.tmpdir = tmpdir
         self.portage_configroot = portage_configroot
@@ -43,12 +42,12 @@ class ISOIt(HashIt):
     def initramfs(self, isoboot_dir):
         """ TODO """
         # Paths to where we'll build busybox and the initramfs.
-        busybox_root     = os.path.join(self.tmpdir, 'busybox')
-        busybox_path     = os.path.join(busybox_root, 'bin/busybox')
+        busybox_root = os.path.join(self.tmpdir, 'busybox')
+        busybox_path = os.path.join(busybox_root, 'bin/busybox')
         makeprofile_path = os.path.join(busybox_root, 'etc/portage/make.profile')
-        savedconfig_dir  = os.path.join(busybox_root, 'etc/portage/savedconfig/sys-apps')
+        savedconfig_dir = os.path.join(busybox_root, 'etc/portage/savedconfig/sys-apps')
         savedconfig_path = os.path.join(savedconfig_dir, 'busybox')
-        busybox_config   = os.path.join(self.libdir, 'scripts/busybox-config')
+        busybox_config = os.path.join(self.libdir, 'scripts/busybox-config')
 
         # Remove any old busybox build directory and prepare new one.
         shutil.rmtree(busybox_root, ignore_errors=True)
@@ -58,15 +57,13 @@ class ISOIt(HashIt):
         # Emerge busybox.
         os.symlink('/usr/portage/profiles/hardened/linux/amd64', makeprofile_path)
         cmd = 'emerge --nodeps -1q busybox'
-        emerge_env = { 'USE' : '-* savedconfig', 'ROOT' : busybox_root,
-            'PORTAGE_CONFIGROOT' : busybox_root }
+        emerge_env = {'USE' : '-* savedconfig', 'ROOT' : busybox_root, 'PORTAGE_CONFIGROOT' : busybox_root}
         Execute(cmd, timeout=600, extra_env=emerge_env, logfile=self.logfile)
 
         # Remove any old initramfs root and prepare a new one.
         initramfs_root = os.path.join(self.tmpdir, 'initramfs')
         shutil.rmtree(initramfs_root, ignore_errors=True)
-        root_paths = ['bin', 'dev', 'etc', 'mnt/cdrom', 'mnt/squashfs', 'mnt/tmpfs',
-            'proc', 'sbin', 'sys', 'tmp', 'usr/bin', 'usr/sbin', 'var', 'var/run']
+        root_paths = ['bin', 'dev', 'etc', 'mnt/cdrom', 'mnt/squashfs', 'mnt/tmpfs', 'proc', 'sbin', 'sys', 'tmp', 'usr/bin', 'usr/sbin', 'var', 'var/run']
         for p in root_paths:
             d = os.path.join(initramfs_root, p)
             os.makedirs(d, mode=0o755, exist_ok=True)
@@ -98,12 +95,12 @@ class ISOIt(HashIt):
         os.chdir(cwd)
 
 
-    def isoit(self, alt_name = None):
+    def isoit(self, alt_name=None):
         # Create the ISO with the default name unless an alt_name is given.
         if alt_name:
             self.medium_name = '%s-%s%s%s.iso' % (alt_name, self.year, self.month, self.day)
             self.digest_name = '%s.DIGESTS' % self.medium_name
-        iso_dir     = os.path.join(self.tmpdir, 'iso')
+        iso_dir = os.path.join(self.tmpdir, 'iso')
         isoboot_dir = os.path.join(iso_dir, 'boot')
         isogrub_dir = os.path.join(isoboot_dir, 'grub')
         shutil.rmtree(iso_dir, ignore_errors=True)
@@ -114,7 +111,7 @@ class ISOIt(HashIt):
 
         # 2. Move the kernel image into the iso/boot directory.
         # TODO: we are assuming a static kernel
-        kernelimage_dir  = os.path.join(self.portage_configroot, 'boot')
+        kernelimage_dir = os.path.join(self.portage_configroot, 'boot')
         kernelimage_path = os.path.join(kernelimage_dir, 'kernel')
         shutil.copy(kernelimage_path, isoboot_dir)
         # If this fails, we'll have to rebuild the kernel!
@@ -127,17 +124,17 @@ class ISOIt(HashIt):
         Execute(cmd, timeout=None, logfile=self.logfile)
 
         # 4. Emerge grub:0 to grab stage2_eltorito
-        grub_root     = os.path.join(self.tmpdir, 'grub')
+        grub_root = os.path.join(self.tmpdir, 'grub')
         eltorito_path = os.path.join(grub_root, 'boot/grub/stage2_eltorito')
-        menulst_path  = os.path.join(self.libdir, 'scripts/menu.lst')
+        menulst_path = os.path.join(self.libdir, 'scripts/menu.lst')
         cmd = 'emerge --nodeps -1q grub:0'
-        emerge_env = { 'USE' : '-* savedconfig', 'ROOT' : grub_root }
+        emerge_env = {'USE' : '-* savedconfig', 'ROOT' : grub_root}
         Execute(cmd, timeout=600, extra_env=emerge_env, logfile=self.logfile)
         shutil.copy(eltorito_path, isogrub_dir)
         shutil.copy(menulst_path, isogrub_dir)
 
         # 5. Create the iso image.  This can take a long time.
-        args  = '-R '                           # Rock Ridge protocol
+        args = '-R '                            # Rock Ridge protocol
         args += '-b boot/grub/stage2_eltorito ' # El Torito boot image
         args += '-no-emul-boot '                # No disk emulation for El Torito
         args += '-boot-load-size 4 '            # 4x512-bit sectors for no-emulation mode

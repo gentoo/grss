@@ -27,29 +27,28 @@ class Populate():
         for a particular cycle number.
     """
 
-    def __init__(self, libdir = CONST.LIBDIR, workdir = CONST.WORKDIR, \
-            portage_configroot = CONST.PORTAGE_CONFIGROOT, logfile = CONST.LOGFILE):
+    def __init__(self, libdir=CONST.LIBDIR, workdir=CONST.WORKDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT, logfile=CONST.LOGFILE):
         self.libdir = libdir
         self.workdir = workdir
         self.portage_configroot = portage_configroot
         self.logfile = logfile
 
 
-    def populate(self, cycle = True):
+    def populate(self, cycle=True):
         """ Copy the core files from the GRS repo, to a local workdir and
             then to the system's portage configroot, selecting for a paricular
             cycle number.
         """
         # rsync from the GRS repo to the workdir, removing the .git directory
         cmd = 'rsync -av --delete --exclude=\'.git*\' %s/core/ %s' % (self.libdir, self.workdir)
-        Execute(cmd, timeout=60, logfile = self.logfile)
+        Execute(cmd, timeout=60, logfile=self.logfile)
 
         # Select the cycle
         if cycle: self.select_cycle(cycle)
 
         # Copy from the workdir to the system's portage configroot.
         cmd = 'rsync -av %s/ %s' % (self.workdir, self.portage_configroot)
-        Execute(cmd, timeout=60, logfile = self. logfile)
+        Execute(cmd, timeout=60, logfile=self.logfile)
 
 
     def select_cycle(self, cycle):
