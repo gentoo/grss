@@ -50,7 +50,7 @@ class WorldConf():
 
         # Now we can read world.conf and populate an empty /etc/portage.
         config = configparser.RawConfigParser(
-                delimiters=':', allow_no_value=True, comment_prefixes=None
+            delimiters=':', allow_no_value=True, comment_prefixes=None
         )
         config.read(CONST.WORLD_CONFIG)
         for s in config.sections():
@@ -94,7 +94,7 @@ class WorldConf():
 
         # Also let's get a list of all the possible canonical file names
         config = configparser.RawConfigParser(
-                delimiters=':', allow_no_value=True, comment_prefixes=None
+            delimiters=':', allow_no_value=True, comment_prefixes=None
         )
         config.read(CONST.WORLD_CONFIG)
         canon = []

@@ -59,13 +59,13 @@ class ISOIt(HashIt):
 
         # Emerge busybox.
         os.symlink(
-                '/usr/portage/profiles/hardened/linux/amd64',
-                makeprofile_path
+            '/usr/portage/profiles/hardened/linux/amd64',
+            makeprofile_path
         )
         cmd = 'emerge --nodeps -1q busybox'
         emerge_env = {
-                'USE' : '-* savedconfig', 'ROOT' : busybox_root,
-                'PORTAGE_CONFIGROOT' : busybox_root
+            'USE' : '-* savedconfig', 'ROOT' : busybox_root,
+            'PORTAGE_CONFIGROOT' : busybox_root
         }
         Execute(cmd, timeout=600, extra_env=emerge_env, logfile=self.logfile)
 
@@ -73,8 +73,8 @@ class ISOIt(HashIt):
         initramfs_root = os.path.join(self.tmpdir, 'initramfs')
         shutil.rmtree(initramfs_root, ignore_errors=True)
         root_paths = [
-                'bin', 'dev', 'etc', 'mnt/cdrom', 'mnt/squashfs', 'mnt/tmpfs', 'proc', 'sbin',
-                'sys', 'tmp', 'usr/bin', 'usr/sbin', 'var', 'var/run'
+            'bin', 'dev', 'etc', 'mnt/cdrom', 'mnt/squashfs', 'mnt/tmpfs', 'proc', 'sbin', 'sys',
+            'tmp', 'usr/bin', 'usr/sbin', 'var', 'var/run'
         ]
         for p in root_paths:
             d = os.path.join(initramfs_root, p)
