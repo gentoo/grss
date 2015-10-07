@@ -46,7 +46,8 @@ class Populate():
         Execute(cmd, timeout=60, logfile=self.logfile)
 
         # Select the cycle
-        if cycle: self.select_cycle(cycle)
+        if cycle:
+            self.select_cycle(cycle)
 
         # Copy from the workdir to the system's portage configroot.
         cmd = 'rsync -av %s/ %s' % (self.workdir, self.portage_configroot)
@@ -73,7 +74,7 @@ class Populate():
                     cycled_files.setdefault(cycle_no, [])
                     cycled_files[cycle_no].append([dirpath, filename])
         # If cycle is just a boolean, then default to the maximum cycle number.
-        if type(cycle) is bool:
+        if isinstance(cycle, bool):
             cycle_no = max(cycled_files)
         else:
             cycle_no = cycle
