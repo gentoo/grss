@@ -16,13 +16,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import glob
-import re
 import os
 import shutil
 
 from grs.Constants import CONST
-from grs.MountDirectories import MountDirectories
 from grs.Rotator import Rotator
 
 

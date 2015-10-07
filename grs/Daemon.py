@@ -18,9 +18,7 @@
 
 import atexit
 import os
-import signal
 import sys
-import time
 
 class Daemon:
     """ Adopted from Sander Marechal's "A simple unix/linux daemon in Python"
