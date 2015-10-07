@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
 import datetime
-import glob
 import os
-import re
-import shutil
 
 from grs.Constants import CONST
 from grs.Rotator import Rotator

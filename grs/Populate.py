@@ -18,7 +18,6 @@
 
 import os
 import re
-import shutil
 from grs.Constants import CONST
 from grs.Execute import Execute
 
