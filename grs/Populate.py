@@ -64,7 +64,7 @@ class Populate():
         cycled_files = {}
         for dirpath, dirnames, filenames in os.walk(self.workdir):
             for f in filenames:
-                m = re.search('^(.+)\.CYCLE\.(\d+)', f)
+                m = re.search(r'^(.+)\.CYCLE\.(\d+)', f)
                 if m:
                     filename = m.group(1)
                     cycle_no = int(m.group(2))

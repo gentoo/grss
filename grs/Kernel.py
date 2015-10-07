@@ -47,18 +47,18 @@ class Kernel():
         # The version line looks like the following:
         # Linux/x86 4.0.6-hardened-r2 Kernel Configuration
         # The 2nd group contains the version.
-        m = re.search('^#\s+(\S+)\s+(\S+).+$', version_line)
+        m = re.search(r'^#\s+(\S+)\s+(\S+).+$', version_line)
         gentoo_version = m.group(2)
         try:
             # Either the verison is of the form '4.0.6-hardened-r2' with two -'s
-            m = re.search('(\S+?)-(\S+?)-(\S+)', gentoo_version)
+            m = re.search(r'(\S+?)-(\S+?)-(\S+)', gentoo_version)
             vanilla_version = m.group(1)
             flavor = m.group(2)
             revision = m.group(3)
             pkg_name = flavor + '-sources-' + vanilla_version + '-' + revision
         except AttributeError:
             # Or the verison is of the form '4.0.6-hardened' with one -
-            m = re.search('(\S+?)-(\S+)', gentoo_version)
+            m = re.search(r'(\S+?)-(\S+)', gentoo_version)
             vanilla_version = m.group(1)
             flavor = m.group(2)
             pkg_name = flavor + '-sources-' + vanilla_version

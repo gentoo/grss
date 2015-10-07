@@ -162,14 +162,14 @@ class Interpret(Daemon):
                 line_number += 1
 
                 # Skip lines with initial # as comments.
-                m = re.search('^(#).*$', l)
+                m = re.search(r'^(#).*$', l)
                 if m:
                     continue
 
                 # For a release run, execute every line of the build script.
                 # For an update run, exexute only lines with a leading +.
                 ignore_stamp = False
-                m = re.search('^(\+)(.*)$', l)
+                m = re.search(r'^(\+)(.*)$', l)
                 if m:
                     # There is a leading +, so remove it and skip if doing an update run
                     ignore_stamp = self.update_run
@@ -187,7 +187,7 @@ class Interpret(Daemon):
                 # single 'verb', or a 'verb obj' pair.  While restrictive,
                 # its good enough for now.
                 try:
-                    m = re.search('(\S+)\s+(\S+)', l)
+                    m = re.search(r'(\S+)\s+(\S+)', l)
                     verb = m.group(1)
                     obj = m.group(2)
                 except AttributeError:

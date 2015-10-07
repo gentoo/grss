@@ -53,7 +53,7 @@ class WorldConf():
         config.read(CONST.WORLD_CONFIG)
         for s in config.sections():
             for (directory, value) in config[s].items():
-                p_slot_atom = re.sub('[/:]', '_', s)
+                p_slot_atom = re.sub(r'[/:]', '_', s)
                 dpath = os.path.join(CONST.PORTAGE_CONFIGDIR, directory)
                 fpath = os.path.join(dpath, p_slot_atom)
                 os.makedirs(dpath, mode=0o755, exist_ok=True)
@@ -84,18 +84,18 @@ class WorldConf():
             cpv = portdb.cp_list(p)[0]
             slotvar = portdb.aux_get(cpv, ['SLOT'])[0]
             try:
-                m = re.search('(.+?)\/(.+)', slotvar)
+                m = re.search(r'(.+?)\/(.+)', slotvar)
                 slot = m.group(1)
             except AttributeError:
                 slot = slotvar
-            slot_atoms.append(re.sub('[/:]', '_', '%s:%s' % (p, slot)))
+            slot_atoms.append(re.sub(r'[/:]', '_', '%s:%s' % (p, slot)))
 
         # Also let's get a list of all the possible canonical file names
         config = configparser.RawConfigParser(delimiters=':', allow_no_value=True, comment_prefixes=None)
         config.read(CONST.WORLD_CONFIG)
         canon = []
         for s in config.sections():
-            p_slot_atom = re.sub('[/:]', '_', s)
+            p_slot_atom = re.sub(r'[/:]', '_', s)
             canon.append(p_slot_atom)
 
         # Walk through all files in /etc/portage and remove any files for uninstalled pkgs.

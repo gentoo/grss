@@ -45,7 +45,7 @@ class Rotator():
         objs = glob.glob('%s.*' % obj)
         indexed_obj = {}
         for o in objs:
-            m = re.search('^.+\.(\d+)$', o)
+            m = re.search(r'^.+\.(\d+)$', o)
             indexed_obj[int(m.group(1))] = o
         count = list(indexed_obj.keys())
         count.sort()
@@ -58,7 +58,7 @@ class Rotator():
                 except NotADirectoryError:
                     os.unlink(current_obj)
                 continue
-            m = re.search('^(.+)\.\d+$', current_obj)
+            m = re.search(r'^(.+)\.\d+$', current_obj)
             next_obj = '%s.%d' % (m.group(1), c+1)
             shutil.move(current_obj, next_obj)
 
