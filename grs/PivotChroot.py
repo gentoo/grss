@@ -26,7 +26,10 @@ from grs.Rotator import Rotator
 class PivotChroot(Rotator):
     """ Move an inner chroot out to the new system portage configroot.  """
 
-    def __init__(self, tmpdir=CONST.TMPDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT, logfile=CONST.LOGFILE):
+    def __init__(
+            self, tmpdir=CONST.TMPDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT,
+            logfile=CONST.LOGFILE
+    ):
         self.tmpdir = tmpdir
         self.portage_configroot = portage_configroot
         self.logfile = logfile

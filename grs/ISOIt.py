@@ -26,7 +26,10 @@ from grs.HashIt import HashIt
 class ISOIt(HashIt):
     """ Create a bootable ISO of the system. """
 
-    def __init__(self, name, libdir=CONST.LIBDIR, tmpdir=CONST.TMPDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT, logfile=CONST.LOGFILE):
+    def __init__(
+            self, name, libdir=CONST.LIBDIR, tmpdir=CONST.TMPDIR,
+            portage_configroot=CONST.PORTAGE_CONFIGROOT, logfile=CONST.LOGFILE
+    ):
         self.libdir = libdir
         self.tmpdir = tmpdir
         self.portage_configroot = portage_configroot
@@ -55,15 +58,24 @@ class ISOIt(HashIt):
         shutil.copy(busybox_config, savedconfig_path)
 
         # Emerge busybox.
-        os.symlink('/usr/portage/profiles/hardened/linux/amd64', makeprofile_path)
+        os.symlink(
+                '/usr/portage/profiles/hardened/linux/amd64',
+                makeprofile_path
+        )
         cmd = 'emerge --nodeps -1q busybox'
-        emerge_env = {'USE' : '-* savedconfig', 'ROOT' : busybox_root, 'PORTAGE_CONFIGROOT' : busybox_root}
+        emerge_env = {
+                'USE' : '-* savedconfig', 'ROOT' : busybox_root,
+                'PORTAGE_CONFIGROOT' : busybox_root
+        }
         Execute(cmd, timeout=600, extra_env=emerge_env, logfile=self.logfile)
 
         # Remove any old initramfs root and prepare a new one.
         initramfs_root = os.path.join(self.tmpdir, 'initramfs')
         shutil.rmtree(initramfs_root, ignore_errors=True)
-        root_paths = ['bin', 'dev', 'etc', 'mnt/cdrom', 'mnt/squashfs', 'mnt/tmpfs', 'proc', 'sbin', 'sys', 'tmp', 'usr/bin', 'usr/sbin', 'var', 'var/run']
+        root_paths = [
+                'bin', 'dev', 'etc', 'mnt/cdrom', 'mnt/squashfs', 'mnt/tmpfs', 'proc', 'sbin',
+                'sys', 'tmp', 'usr/bin', 'usr/sbin', 'var', 'var/run'
+        ]
         for p in root_paths:
             d = os.path.join(initramfs_root, p)
             os.makedirs(d, mode=0o755, exist_ok=True)

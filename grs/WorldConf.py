@@ -49,7 +49,9 @@ class WorldConf():
                     os.remove(fpath)
 
         # Now we can read world.conf and populate an empty /etc/portage.
-        config = configparser.RawConfigParser(delimiters=':', allow_no_value=True, comment_prefixes=None)
+        config = configparser.RawConfigParser(
+                delimiters=':', allow_no_value=True, comment_prefixes=None
+        )
         config.read(CONST.WORLD_CONFIG)
         for s in config.sections():
             for (directory, value) in config[s].items():
@@ -91,7 +93,9 @@ class WorldConf():
             slot_atoms.append(re.sub(r'[/:]', '_', '%s:%s' % (p, slot)))
 
         # Also let's get a list of all the possible canonical file names
-        config = configparser.RawConfigParser(delimiters=':', allow_no_value=True, comment_prefixes=None)
+        config = configparser.RawConfigParser(
+                delimiters=':', allow_no_value=True, comment_prefixes=None
+        )
         config.read(CONST.WORLD_CONFIG)
         canon = []
         for s in config.sections():

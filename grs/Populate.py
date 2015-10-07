@@ -27,7 +27,10 @@ class Populate():
         for a particular cycle number.
     """
 
-    def __init__(self, libdir=CONST.LIBDIR, workdir=CONST.WORKDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT, logfile=CONST.LOGFILE):
+    def __init__(
+            self, libdir=CONST.LIBDIR, workdir=CONST.WORKDIR,
+            portage_configroot=CONST.PORTAGE_CONFIGROOT, logfile=CONST.LOGFILE
+    ):
         self.libdir = libdir
         self.workdir = workdir
         self.portage_configroot = portage_configroot

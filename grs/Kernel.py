@@ -27,7 +27,10 @@ from grs.Execute import Execute
 class Kernel():
     """ Build a linux-image pkg and install when building a system. """
 
-    def __init__(self, libdir=CONST.LIBDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT, kernelroot=CONST.KERNELROOT, package=CONST.PACKAGE, logfile=CONST.LOGFILE):
+    def __init__(
+            self, libdir=CONST.LIBDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT,
+            kernelroot=CONST.KERNELROOT, package=CONST.PACKAGE, logfile=CONST.LOGFILE
+    ):
         self.libdir = libdir
         self.portage_configroot = portage_configroot
         self.kernelroot = kernelroot
