@@ -53,7 +53,7 @@ class WorldConf():
         )
         config.read(CONST.WORLD_CONFIG)
         for _section in config.sections():
-            for (directory, value) in config[s].items():
+            for (directory, value) in config[_section].items():
                 p_slot_atom = re.sub(r'[/:]', '_', _section)
                 dpath = os.path.join(CONST.PORTAGE_CONFIGDIR, directory)
                 fpath = os.path.join(dpath, p_slot_atom)
