@@ -79,7 +79,7 @@ class Interpret(Daemon):
             sys.exit(signum + 128)
 
 
-        def smartlog(_log, obj, has_obj=True):
+        def smartlog(_log, obj, has_obj):
             """ This logs whether or not we have a grammatically incorrect
                 directive, or we are doing a mock run, and returns whether
                 or not we should execute the directive:
@@ -202,7 +202,7 @@ class Interpret(Daemon):
                     stampit(progress)
                     continue
                 if verb == 'log':
-                    if smartlog(_line, obj):
+                    if smartlog(_line, obj, True):
                         stampit(progress)
                         continue
                     if obj == 'stamp':
@@ -220,17 +220,17 @@ class Interpret(Daemon):
                         continue
                     _md.umount_all()
                 elif verb == 'populate':
-                    if smartlog(_line, obj):
+                    if smartlog(_line, obj, True):
                         stampit(progress)
                         continue
                     _po.populate(cycle=int(obj))
                 elif verb == 'runscript':
-                    if smartlog(_line, obj):
+                    if smartlog(_line, obj, True):
                         stampit(progress)
                         continue
                     _ru.runscript(obj)
                 elif verb == 'pivot':
-                    if smartlog(_line, obj):
+                    if smartlog(_line, obj, True):
                         stampit(progress)
                         continue
                     _pc.pivot(obj, _md)
