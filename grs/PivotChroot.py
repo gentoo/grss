@@ -35,11 +35,11 @@ class PivotChroot(Rotator):
         self.logfile = logfile
 
 
-    def pivot(self, subchroot, md):
+    def pivot(self, subchroot, _md):
         # If any directories are mounted, unmount them before pivoting.
-        some_mounted, all_mounted = md.are_mounted()
+        some_mounted, all_mounted = _md.are_mounted()
         if some_mounted:
-            md.umount_all()
+            _md.umount_all()
 
         # Move the system's portage configroot out of the way to system.0,
         # then pivot the inner chroot to system.
@@ -50,4 +50,4 @@ class PivotChroot(Rotator):
         # Be conservative: only if all the directories were mounted on the old
         # system portage configroot to we remount on the newly pivoted root.
         if all_mounted:
-            md.mount_all()
+            _md.mount_all()

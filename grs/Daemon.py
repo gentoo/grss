@@ -67,23 +67,23 @@ class Daemon:
             sys.exit(1)
 
         # Dup stdin to /dev/null, and stdout and stderr to grs-daemon-<pid>.err
-        si = open(os.devnull, 'r')
-        os.dup2(si.fileno(), sys.stdin.fileno())
+        _si = open(os.devnull, 'r')
+        os.dup2(_si.fileno(), sys.stdin.fileno())
 
         os.makedirs('/var/log/grs', mode=0o755, exist_ok=True)
-        se = open('/var/log/grs/grs-daemon-%d.err' % os.getpid(), 'a+')
+        _se = open('/var/log/grs/grs-daemon-%d.err' % os.getpid(), 'a+')
 
         sys.stdout.flush()
-        os.dup2(se.fileno(), sys.stdout.fileno())
+        os.dup2(_se.fileno(), sys.stdout.fileno())
         sys.stderr.flush()
-        os.dup2(se.fileno(), sys.stderr.fileno())
+        os.dup2(_se.fileno(), sys.stderr.fileno())
 
         # Use atexit to remove the pidfile when we shutdown.
         # No matter where the exit is initiated, eg from Execute.py
         # we are sure that atexit() will run and delete the pidfile.
         atexit.register(self.delpid)
-        with open(self.pidfile, 'w') as pf:
-            pf.write('%d\n' % os.getpid())
+        with open(self.pidfile, 'w') as _pf:
+            _pf.write('%d\n' % os.getpid())
 
 
     def delpid(self):
@@ -99,8 +99,8 @@ class Daemon:
         # 1) If the pidfile is stale, remove it and startup as usual.
         # 2) If we're already running, then don't start a second instance.
         try:
-            with open(self.pidfile, 'r') as pf:
-                pid = int(pf.read().strip())
+            with open(self.pidfile, 'r') as _pf:
+                pid = int(_pf.read().strip())
         except IOError:
             pid = None
 

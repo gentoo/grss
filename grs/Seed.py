@@ -49,8 +49,8 @@ class Seed(Rotator):
         # Download a stage tarball if we don't have one
         if not os.path.isfile(self.filepath):
             request = urllib.request.urlopen(self.stage_uri)
-            with open(self.filepath, 'wb') as f:
-                shutil.copyfileobj(request, f)
+            with open(self.filepath, 'wb') as _file:
+                shutil.copyfileobj(request, _file)
 
         # Because python's tarfile sucks
         cmd = 'tar --xattrs -xf %s -C %s' % (self.filepath, self.portage_configroot)

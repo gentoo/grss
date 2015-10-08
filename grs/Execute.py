@@ -44,8 +44,8 @@ class Execute():
         """
         def signalexit():
             pid = os.getpid()
-            f.write('SENDING SIGTERM to pid = %d\n' % pid)
-            f.close()
+            _file.write('SENDING SIGTERM to pid = %d\n' % pid)
+            _file.close()
             try:
                 for i in range(10):
                     os.kill(pid, signal.SIGTERM)
@@ -63,10 +63,10 @@ class Execute():
         extra_env = dict(os.environ, **extra_env)
 
         if logfile:
-            f = open(logfile, 'a')
-            proc = subprocess.Popen(args, stdout=f, stderr=f, env=extra_env, shell=shell)
+            _file = open(logfile, 'a')
+            proc = subprocess.Popen(args, stdout=_file, stderr=_file, env=extra_env, shell=shell)
         else:
-            f = sys.stderr
+            _file = sys.stderr
             proc = subprocess.Popen(args, env=extra_env, shell=shell)
 
         try:
@@ -77,18 +77,18 @@ class Execute():
             timed_out = True
 
         if not timed_out:
-            # rc = None if we had a timeout
-            rc = proc.returncode
-            if rc:
-                f.write('EXIT CODE: %d\n' % rc)
+            # _rc = None if we had a timeout
+            _rc = proc.returncode
+            if _rc:
+                _file.write('EXIT CODE: %d\n' % _rc)
                 if not failok:
                     signalexit()
 
         if timed_out:
-            f.write('TIMEOUT ERROR: %s\n' % cmd)
+            _file.write('TIMEOUT ERROR: %s\n' % cmd)
             if not failok:
                 signalexit()
 
         # Only close a logfile, don't close sys.stderr!
         if logfile:
-            f.close()
+            _file.close()

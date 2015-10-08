@@ -44,22 +44,22 @@ class Rotator():
         """
         objs = glob.glob('%s.*' % obj)
         indexed_obj = {}
-        for o in objs:
-            m = re.search(r'^.+\.(\d+)$', o)
-            indexed_obj[int(m.group(1))] = o
+        for _obj in objs:
+            _match = re.search(r'^.+\.(\d+)$', _obj)
+            indexed_obj[int(_match.group(1))] = _obj
         count = list(indexed_obj.keys())
         count.sort()
         count.reverse()
-        for c in count:
-            current_obj = indexed_obj[c]
-            if c >= upper_limit:
+        for _count in count:
+            current_obj = indexed_obj[_count]
+            if _count >= upper_limit:
                 try:
                     shutil.rmtree(current_obj)
                 except NotADirectoryError:
                     os.unlink(current_obj)
                 continue
-            m = re.search(r'^(.+)\.\d+$', current_obj)
-            next_obj = '%s.%d' % (m.group(1), c+1)
+            _match = re.search(r'^(.+)\.\d+$', current_obj)
+            next_obj = '%s.%d' % (_match.group(1), _count+1)
             shutil.move(current_obj, next_obj)
 
 

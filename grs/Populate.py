@@ -66,11 +66,11 @@ class Populate():
         # { 1:['/path/to', 'a'], 1:['/path/to', 'b'], 2:...}
         cycled_files = {}
         for dirpath, dirnames, filenames in os.walk(self.workdir):
-            for f in filenames:
-                m = re.search(r'^(.+)\.CYCLE\.(\d+)', f)
-                if m:
-                    filename = m.group(1)
-                    cycle_no = int(m.group(2))
+            for _file in filenames:
+                _match = re.search(r'^(.+)\.CYCLE\.(\d+)', _file)
+                if _match:
+                    filename = _match.group(1)
+                    cycle_no = int(_match.group(2))
                     cycled_files.setdefault(cycle_no, [])
                     cycled_files[cycle_no].append([dirpath, filename])
         # If cycle is just a boolean, then default to the maximum cycle number.
@@ -81,14 +81,14 @@ class Populate():
         # Go through cycled_files dictionary and either
         #     1. rename the file if it matches the desired cycle number,
         #     2. delete the file otherwise.
-        for c in cycled_files:
-            for f in cycled_files[c]:
-                dirpath = f[0]
-                filename = f[1]
+        for _cycle in cycled_files:
+            for _file in cycled_files[_cycle]:
+                dirpath = _file[0]
+                filename = _file[1]
                 new_file = os.path.join(dirpath, filename)
-                old_file = "%s.CYCLE.%d" % (new_file, c)
+                old_file = "%s.CYCLE.%d" % (new_file, _cycle)
                 if os.path.isfile(old_file):
-                    if c == cycle_no:
+                    if _cycle == cycle_no:
                         os.rename(old_file, new_file)
                     else:
                         os.remove(old_file)

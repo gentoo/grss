@@ -55,12 +55,12 @@ class Interpret(Daemon):
             """
             mypid = os.getpid()
             while True:
-                with open(os.path.join(self.subcgroupdir, 'tasks'), 'r') as f:
-                    lines = f.readlines()
+                with open(os.path.join(self.subcgroupdir, 'tasks'), 'r') as _file:
+                    lines = _file.readlines()
                     if len(lines) <= 1:
                         break
-                    for p in lines:
-                        pid = int(p.strip())
+                    for _pid in lines:
+                        pid = int(_pid.strip())
                         if mypid == pid:
                             continue
                         try:
@@ -73,13 +73,13 @@ class Interpret(Daemon):
                         except ProcessLookupError:
                             pass
             try:
-                md.umount_all()
+                _md.umount_all()
             except NameError:
                 pass
             sys.exit(signum + 128)
 
 
-        def smartlog(l, obj, has_obj=True):
+        def smartlog(_log, obj, has_obj=True):
             """ This logs whether or not we have a grammatically incorrect
                 directive, or we are doing a mock run, and returns whether
                 or not we should execute the directive:
@@ -87,10 +87,10 @@ class Interpret(Daemon):
                     False = don't skip it
             """
             if (has_obj and not obj) or (not has_obj and obj):
-                lo.log('Bad command: %s' % l)
+                _lo.log('Bad command: %s' % _log)
                 return True
             if self.mock_run:
-                lo.log(l)
+                _lo.log(_log)
                 return True
             return False
 
@@ -121,59 +121,59 @@ class Interpret(Daemon):
         # Initialize all the classes that will run the directives from
         # the build script.  Note that we expect these classes to just
         # initialize some variables but not do any work in their initializers.
-        lo = Log(logfile)
-        sy = Synchronize(repo_uri, name, libdir, logfile)
-        se = Seed(stage_uri, tmpdir, portage_configroot, package, logfile)
-        md = MountDirectories(portage_configroot, package, logfile)
-        po = Populate(libdir, workdir, portage_configroot, logfile)
-        ru = RunScript(libdir, portage_configroot, logfile)
-        pc = PivotChroot(tmpdir, portage_configroot, logfile)
-        ke = Kernel(libdir, portage_configroot, kernelroot, package, logfile)
-        bi = TarIt(name, portage_configroot, logfile)
-        io = ISOIt(name, libdir, tmpdir, portage_configroot, logfile)
+        _lo = Log(logfile)
+        _sy = Synchronize(repo_uri, name, libdir, logfile)
+        _se = Seed(stage_uri, tmpdir, portage_configroot, package, logfile)
+        _md = MountDirectories(portage_configroot, package, logfile)
+        _po = Populate(libdir, workdir, portage_configroot, logfile)
+        _ru = RunScript(libdir, portage_configroot, logfile)
+        _pc = PivotChroot(tmpdir, portage_configroot, logfile)
+        _ke = Kernel(libdir, portage_configroot, kernelroot, package, logfile)
+        _bi = TarIt(name, portage_configroot, logfile)
+        _io = ISOIt(name, libdir, tmpdir, portage_configroot, logfile)
 
         # Just in case /var/tmp/grs doesn't already exist.
         os.makedirs(tmpdir, mode=0o755, exist_ok=True)
 
         # Rotate any prevously existing logs and make unmount any existing
         # bind mounts from a previous run that were not cleaned up.
-        lo.rotate_logs()
-        md.umount_all()
+        _lo.rotate_logs()
+        _md.umount_all()
 
         # Both sync() + seed() do not need build script directives.
         # sync() is done unconditionally for an update run.
         progress = os.path.join(tmpdir, '.completed_sync')
         if not os.path.exists(progress) or self.update_run:
-            sy.sync()
+            _sy.sync()
             stampit(progress)
 
         # seed() is never done for an update run
         progress = os.path.join(tmpdir, '.completed_seed')
         if not os.path.exists(progress) and not self.update_run:
-            se.seed()
+            _se.seed()
             stampit(progress)
 
         # Read the build script and execute a line at a time.
         build_script = os.path.join(libdir, 'build')
-        with open(build_script, 'r') as s:
+        with open(build_script, 'r') as _file:
             line_number = 0
             medium_type = None
-            for l in s.readlines():
+            for _line in _file.readlines():
                 line_number += 1
 
                 # Skip lines with initial # as comments.
-                m = re.search(r'^(#).*$', l)
-                if m:
+                _match = re.search(r'^(#).*$', _line)
+                if _match:
                     continue
 
                 # For a release run, execute every line of the build script.
                 # For an update run, exexute only lines with a leading +.
                 ignore_stamp = False
-                m = re.search(r'^(\+)(.*)$', l)
-                if m:
+                _match = re.search(r'^(\+)(.*)$', _line)
+                if _match:
                     # There is a leading +, so remove it and skip if doing an update run
                     ignore_stamp = self.update_run
-                    l = m.group(2)
+                    _line = _match.group(2)
                 else:
                     # There is no leading +, so skip if this is an update run
                     if self.update_run:
@@ -187,11 +187,11 @@ class Interpret(Daemon):
                 # single 'verb', or a 'verb obj' pair.  While restrictive,
                 # its good enough for now.
                 try:
-                    m = re.search(r'(\S+)\s+(\S+)', l)
-                    verb = m.group(1)
-                    obj = m.group(2)
+                    _match = re.search(r'(\S+)\s+(\S+)', _line)
+                    verb = _match.group(1)
+                    obj = _match.group(2)
                 except AttributeError:
-                    verb = l.strip()
+                    verb = _line.strip()
                     obj = None
 
                 # This long concatenated if is where the semantics of the
@@ -202,81 +202,81 @@ class Interpret(Daemon):
                     stampit(progress)
                     continue
                 if verb == 'log':
-                    if smartlog(l, obj):
+                    if smartlog(_line, obj):
                         stampit(progress)
                         continue
                     if obj == 'stamp':
-                        lo.log('='*80)
+                        _lo.log('='*80)
                     else:
-                        lo.log(obj)
+                        _lo.log(obj)
                 elif verb == 'mount':
-                    if smartlog(l, obj, False):
+                    if smartlog(_line, obj, False):
                         stampit(progress)
                         continue
-                    md.mount_all()
+                    _md.mount_all()
                 elif verb == 'unmount':
-                    if smartlog(l, obj, False):
+                    if smartlog(_line, obj, False):
                         stampit(progress)
                         continue
-                    md.umount_all()
+                    _md.umount_all()
                 elif verb == 'populate':
-                    if smartlog(l, obj):
+                    if smartlog(_line, obj):
                         stampit(progress)
                         continue
-                    po.populate(cycle=int(obj))
+                    _po.populate(cycle=int(obj))
                 elif verb == 'runscript':
-                    if smartlog(l, obj):
+                    if smartlog(_line, obj):
                         stampit(progress)
                         continue
-                    ru.runscript(obj)
+                    _ru.runscript(obj)
                 elif verb == 'pivot':
-                    if smartlog(l, obj):
+                    if smartlog(_line, obj):
                         stampit(progress)
                         continue
-                    pc.pivot(obj, md)
+                    _pc.pivot(obj, _md)
                 elif verb == 'kernel':
-                    if smartlog(l, obj, False):
+                    if smartlog(_line, obj, False):
                         stampit(progress)
                         continue
-                    ke.kernel()
+                    _ke.kernel()
                 elif verb == 'tarit':
                     # 'tarit' can either be just a verb,
                     # or a 'verb obj' pair.
                     if obj:
-                        smartlog(l, obj, True)
-                        bi.tarit(obj)
+                        smartlog(_line, obj, True)
+                        _bi.tarit(obj)
                     else:
-                        smartlog(l, obj, False)
-                        bi.tarit()
+                        smartlog(_line, obj, False)
+                        _bi.tarit()
                     medium_type = 'tarit'
                 elif verb == 'isoit':
                     # 'isoit' can either be just a verb,
                     # or a 'verb obj' pair.
                     if obj:
-                        smartlog(l, obj, True)
-                        io.isoit(obj)
+                        smartlog(_line, obj, True)
+                        _io.isoit(obj)
                     else:
-                        smartlog(l, obj, False)
-                        io.isoit()
+                        smartlog(_line, obj, False)
+                        _io.isoit()
                     medium_type = 'isoit'
                 elif verb == 'hashit':
-                    if smartlog(l, obj, False):
+                    if smartlog(_line, obj, False):
                         stampit(progress)
                         continue
                     if medium_type == 'tarit':
-                        bi.hashit()
+                        _bi.hashit()
                     elif medium_type == 'isoit':
-                        io.hashit()
+                        _io.hashit()
                     else:
                         raise Exception('Unknown medium to hash.')
                 else:
-                    lo.log('Bad command: %s' % l)
+                    _lo.log('Bad command: %s' % _line)
 
                 stampit(progress)
 
         # Just in case the build script lacks a final unmount, if we
         # are done, then let's make sure we clean up after ourselves.
         try:
-            md.umount_all()
+            _md.umount_all()
         except NameError:
             pass

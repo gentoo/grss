@@ -76,9 +76,9 @@ class ISOIt(HashIt):
             'bin', 'dev', 'etc', 'mnt/cdrom', 'mnt/squashfs', 'mnt/tmpfs', 'proc', 'sbin', 'sys',
             'tmp', 'usr/bin', 'usr/sbin', 'var', 'var/run'
         ]
-        for p in root_paths:
-            d = os.path.join(initramfs_root, p)
-            os.makedirs(d, mode=0o755, exist_ok=True)
+        for _path in root_paths:
+            _dir = os.path.join(initramfs_root, _path)
+            os.makedirs(_dir, mode=0o755, exist_ok=True)
 
         # Copy the static busybox to the initramfs root.
         # TODO: we are assuming a static busybox, so we should check.

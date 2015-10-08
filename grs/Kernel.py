@@ -41,8 +41,8 @@ class Kernel():
 
     def parse_kernel_config(self):
         """ Parse the version to be built/installed from the kernel-config file. """
-        with open(self.kernel_config, 'r') as f:
-            lines = f.readlines()
+        with open(self.kernel_config, 'r') as _file:
+            lines = _file.readlines()
         # Are we building a modular kernel or statically linked?
         has_modules = 'CONFIG_MODULES=y\n' in lines
         # The third line is the version line in the kernel config file.
@@ -50,20 +50,20 @@ class Kernel():
         # The version line looks like the following:
         # Linux/x86 4.0.6-hardened-r2 Kernel Configuration
         # The 2nd group contains the version.
-        m = re.search(r'^#\s+(\S+)\s+(\S+).+$', version_line)
-        gentoo_version = m.group(2)
+        _match = re.search(r'^#\s+(\S+)\s+(\S+).+$', version_line)
+        gentoo_version = _match.group(2)
         try:
             # Either the verison is of the form '4.0.6-hardened-r2' with two -'s
-            m = re.search(r'(\S+?)-(\S+?)-(\S+)', gentoo_version)
-            vanilla_version = m.group(1)
-            flavor = m.group(2)
-            revision = m.group(3)
+            _match = re.search(r'(\S+?)-(\S+?)-(\S+)', gentoo_version)
+            vanilla_version = _match.group(1)
+            flavor = _match.group(2)
+            revision = _match.group(3)
             pkg_name = flavor + '-sources-' + vanilla_version + '-' + revision
         except AttributeError:
             # Or the verison is of the form '4.0.6-hardened' with one -
-            m = re.search(r'(\S+?)-(\S+)', gentoo_version)
-            vanilla_version = m.group(1)
-            flavor = m.group(2)
+            _match = re.search(r'(\S+?)-(\S+)', gentoo_version)
+            vanilla_version = _match.group(1)
+            flavor = _match.group(2)
             pkg_name = flavor + '-sources-' + vanilla_version
         pkg_name = '=sys-kernel/' + pkg_name
         return (gentoo_version, pkg_name, has_modules)

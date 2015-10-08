@@ -21,8 +21,8 @@ class Log(Rotator):
             current_time = datetime.datetime.now(datetime.timezone.utc)
             unix_timestamp = current_time.timestamp()
             msg = '[%f] %s' % (unix_timestamp, msg)
-        with open(self.logfile, 'a') as f:
-            f.write('%s\n' % msg)
+        with open(self.logfile, 'a') as _file:
+            _file.write('%s\n' % msg)
 
 
     def rotate_logs(self, upper_limit=20):

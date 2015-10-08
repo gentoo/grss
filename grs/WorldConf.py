@@ -42,8 +42,8 @@ class WorldConf():
             dpath = os.path.join(CONST.PORTAGE_CONFIGDIR, directory)
             if not os.path.isdir(dpath):
                 continue
-            for f in os.listdir(dpath):
-                fpath = os.path.join(dpath, f)
+            for _file in os.listdir(dpath):
+                fpath = os.path.join(dpath, _file)
                 if os.path.isfile(fpath):
                     os.remove(fpath)
 
@@ -52,14 +52,14 @@ class WorldConf():
             delimiters=':', allow_no_value=True, comment_prefixes=None
         )
         config.read(CONST.WORLD_CONFIG)
-        for s in config.sections():
+        for _section in config.sections():
             for (directory, value) in config[s].items():
-                p_slot_atom = re.sub(r'[/:]', '_', s)
+                p_slot_atom = re.sub(r'[/:]', '_', _section)
                 dpath = os.path.join(CONST.PORTAGE_CONFIGDIR, directory)
                 fpath = os.path.join(dpath, p_slot_atom)
                 os.makedirs(dpath, mode=0o755, exist_ok=True)
-                with open(fpath, 'w') as g:
-                    g.write('%s\n' % value)
+                with open(fpath, 'w') as _file:
+                    _file.write('%s\n' % value)
 
 
     @staticmethod
@@ -73,23 +73,23 @@ class WorldConf():
 
         # Remove all installed pkgs from the set of all portage packages.
         uninstalled = portdb.cp_all()
-        for p in vardb.cp_all():
+        for _cp in vardb.cp_all():
             try:
-                uninstalled.remove(p)
+                uninstalled.remove(_cp)
             except ValueError:
-                print('%s installed on local system, but not in portage repo anymore.' % p)
+                print('%s installed on local system, but not in portage repo anymore.' % _cp)
 
         # Construct a list of canonical named files for uninstalled pkgs.
         slot_atoms = []
-        for p in uninstalled:
-            cpv = portdb.cp_list(p)[0]
-            slotvar = portdb.aux_get(cpv, ['SLOT'])[0]
+        for _cp in uninstalled:
+            _cpv = portdb.cp_list(_cp)[0]
+            slotvar = portdb.aux_get(_cpv, ['SLOT'])[0]
             try:
-                m = re.search(r'(.+?)\/(.+)', slotvar)
-                slot = m.group(1)
+                _match = re.search(r'(.+?)\/(.+)', slotvar)
+                slot = _match.group(1)
             except AttributeError:
                 slot = slotvar
-            slot_atoms.append(re.sub(r'[/:]', '_', '%s:%s' % (p, slot)))
+            slot_atoms.append(re.sub(r'[/:]', '_', '%s:%s' % (_cp, slot)))
 
         # Also let's get a list of all the possible canonical file names
         config = configparser.RawConfigParser(
@@ -97,8 +97,8 @@ class WorldConf():
         )
         config.read(CONST.WORLD_CONFIG)
         canon = []
-        for s in config.sections():
-            p_slot_atom = re.sub(r'[/:]', '_', s)
+        for _section in config.sections():
+            p_slot_atom = re.sub(r'[/:]', '_', _section)
             canon.append(p_slot_atom)
 
         # Walk through all files in /etc/portage and remove any files for uninstalled pkgs.
@@ -108,7 +108,7 @@ class WorldConf():
                 continue
 
             # Remove all filenames that match uninstalled slot_atoms or are not in the canon
-            for f in filenames:
-                fpath = os.path.realpath(os.path.join(dirpath, f))
-                if f in slot_atoms or not f in canon:
+            for _file in filenames:
+                fpath = os.path.realpath(os.path.join(dirpath, _file))
+                if _file in slot_atoms or not _file in canon:
                     os.remove(fpath)
