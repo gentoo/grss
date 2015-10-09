@@ -159,10 +159,13 @@ class Interpret(Daemon):
             line_number = 0
             medium_type = None
             for _line in _file.readlines():
+                # Increment the line number by one and create the name of the
+                # file for the progress stamp.
                 line_number += 1
+                progress = os.path.join(tmpdir, '.completed_%02d' % line_number)
 
-                # Do nothing for lines with initial # or blank lines.
-                # Create a progress stamp only if we are not doing an update run.
+                # Do nothing for lines with initial # or blank lines.  Create
+                # a progress stamp only if we are not doing an update run.
                 if re.search(r'^(#).*$', _line) or len(_line.strip()) == 0:
                     if not self.update_run:
                         stampit(progress)
@@ -173,7 +176,8 @@ class Interpret(Daemon):
                 ignore_stamp = False
                 _match = re.search(r'^(\+)(.*)$', _line)
                 if _match:
-                    # There is a leading +, so remove it and skip if doing an update run
+                    # There is a leading +, so remove it and ignore any progress
+                    # stamp if its an update run.
                     ignore_stamp = self.update_run
                     _line = _match.group(2)
                 else:
@@ -181,20 +185,17 @@ class Interpret(Daemon):
                     if self.update_run:
                         continue
 
-                progress = os.path.join(tmpdir, '.completed_%02d' % line_number)
+                # Skip a line if the progres stamp exists, or ignore it
+                # because its an update run.
                 if os.path.exists(progress) and not ignore_stamp:
                     continue
 
-                # This is pretty simple interpretive logic, either its a
-                # single 'verb', or a 'verb obj' pair.  While restrictive,
-                # its good enough for now.
-                try:
-                    _match = re.search(r'(\S+)\s+(\S+)', _line)
-                    verb = _match.group(1)
-                    obj = _match.group(2)
-                except AttributeError:
-                    verb = _line.strip()
-                    obj = None
+                # This is pretty simple syntax.  The first word on a line
+                # is a verb.  The remaining words are objcts.
+                sentence = _line.split()
+                verb = sentence[0]
+                objs = sentence[1:]
+                obj = objs[0]
 
                 # This long concatenated if is where the semantics of the
                 # build script are implemented.  Note: 'hashit' can only come
