@@ -161,9 +161,11 @@ class Interpret(Daemon):
             for _line in _file.readlines():
                 line_number += 1
 
-                # Skip lines with initial # as comments.
-                _match = re.search(r'^(#).*$', _line)
-                if _match:
+                # Do nothing for lines with initial # or blank lines.
+                # Create a progress stamp only if we are not doing an update run.
+                if re.search(r'^(#).*$', _line) or len(_line.strip()) == 0:
+                    if not self.update_run:
+                        stampit(progress)
                     continue
 
                 # For a release run, execute every line of the build script.
@@ -198,9 +200,6 @@ class Interpret(Daemon):
                 # build script are implemented.  Note: 'hashit' can only come
                 # after 'tarit' or 'isoit' so that it knows the medium_name
                 # to hash, ie whether its a .tar.xz or a .iso
-                if verb == '':
-                    stampit(progress)
-                    continue
                 if verb == 'log':
                     if smartlog(_line, obj, True):
                         stampit(progress)
