@@ -157,7 +157,7 @@ class Interpret(Daemon):
         progress = os.path.join(tmpdir, '.completed_sync')
         if not os.path.exists(progress) or self.update_run:
             if self.mock_run:
-                _lo.log(_line)
+                _lo.log('sync')
             else:
                 _sy.sync()
             stampit(progress)
@@ -166,7 +166,7 @@ class Interpret(Daemon):
         progress = os.path.join(tmpdir, '.completed_seed')
         if not os.path.exists(progress) and not self.update_run:
             if self.mock_run:
-                _lo.log(_line)
+                _lo.log('seed')
             else:
                 _se.seed()
             stampit(progress)
