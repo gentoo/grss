@@ -94,10 +94,9 @@ class Interpret(Daemon):
                     _lo.log(_line)
                     return
                 try:
-                   func(*args) 
+                    func(*args)
                 except Exception as excpt:
                     err = excpt
-                    pass
             else:
                 err = 'Number of parameters incorrect.'
 
