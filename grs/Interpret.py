@@ -173,7 +173,7 @@ class Interpret(Daemon):
 
                 # Do nothing for lines with initial # or blank lines.  Create
                 # a progress stamp only if we are not doing an update run.
-                if re.search(r'^(#).*$', _line) or len(_line.strip()) == 0:
+                if re.search(r'^(#).*$', _line) or _line.strip() == '' or _line.strip() == '+':
                     if not self.update_run:
                         stampit(progress)
                     continue
