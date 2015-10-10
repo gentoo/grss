@@ -79,20 +79,27 @@ class Interpret(Daemon):
             sys.exit(signum + 128)
 
 
-        def smartlog(_log, obj, has_obj):
-            """ This logs whether or not we have a grammatically incorrect
-                directive, or we are doing a mock run, and returns whether
-                or not we should execute the directive:
-                    True  = skip this directive
-                    False = don't skip it
-            """
-            if (has_obj and not obj) or (not has_obj and obj):
-                _lo.log('Bad command: %s' % _log)
-                return True
+        def signalexit():
+            pid = os.getpid()
+            while True:
+                os.kill(pid, signal.SIGTERM)
+                time.sleep(2.0)
+
+
+        def semantic_action(_line, objs, n, execstr):
+            """ Execute the directive """
             if self.mock_run:
-                _lo.log(_log)
-                return True
-            return False
+                _lo.log(_line)
+                return
+            try:
+                if len(objs) < n:
+                    raise Exception('Number of objs for verb incorrect.')
+                exec(execstr)
+            except Exception as e:
+                _lo.log('Bad command: %s' % _line)
+                _lo.log('Exception throw: %s' % e)
+                _lo.log('SENDING SIGTERM to pid = %d\n' % pid)
+                signalexit()
 
 
         def stampit(progress):
@@ -195,82 +202,53 @@ class Interpret(Daemon):
                 sentence = _line.split()
                 verb = sentence[0]
                 objs = sentence[1:]
-                obj = objs[0]
 
                 # This long concatenated if is where the semantics of the
                 # build script are implemented.  Note: 'hashit' can only come
                 # after 'tarit' or 'isoit' so that it knows the medium_name
                 # to hash, ie whether its a .tar.xz or a .iso
                 if verb == 'log':
-                    if smartlog(_line, obj, True):
-                        stampit(progress)
-                        continue
-                    if obj == 'stamp':
-                        _lo.log('='*80)
-                    else:
-                        _lo.log(obj)
+                    if objs[0] == 'stamp':
+                        objs[0] = '='*80
+                    semantic_action(_line, objs, 1, '_lo.log(\' \'.join(objs))')
                 elif verb == 'mount':
-                    if smartlog(_line, obj, False):
-                        stampit(progress)
-                        continue
-                    _md.mount_all()
+                    semantic_action(_line, objs, 0, '_md.mount_all()')
                 elif verb == 'unmount':
-                    if smartlog(_line, obj, False):
-                        stampit(progress)
-                        continue
-                    _md.umount_all()
+                    semantic_action(_line, objs, 0, '_md.umount_all()')
                 elif verb == 'populate':
-                    if smartlog(_line, obj, True):
-                        stampit(progress)
-                        continue
-                    _po.populate(cycle=int(obj))
+                    semantic_action(_line, objs, 1, '_po.populate(cycle=int(objs[0]))')
                 elif verb == 'runscript':
-                    if smartlog(_line, obj, True):
-                        stampit(progress)
-                        continue
-                    _ru.runscript(obj)
+                    semantic_action(_line, objs, 1, '_ru.runscript(objs[0])')
                 elif verb == 'pivot':
-                    if smartlog(_line, obj, True):
-                        stampit(progress)
-                        continue
-                    _pc.pivot(obj, _md)
+                    semantic_action(_line, objs, 1, '_pc.pivot(objs[0], _md)')
                 elif verb == 'kernel':
-                    if smartlog(_line, obj, False):
-                        stampit(progress)
-                        continue
-                    _ke.kernel()
+                    semantic_action(_line, objs, 0, '_ke.kernel()')
                 elif verb == 'tarit':
-                    # 'tarit' can either be just a verb,
-                    # or a 'verb obj' pair.
-                    if obj:
-                        smartlog(_line, obj, True)
-                        _bi.tarit(obj)
+                    # 'tarit' can either be just a verb, or a 'verb obj' pair.
+                    if len(objs):
+                        semantic_action(_line, objs, 1, '_bi.tarit(objs[0])')
                     else:
-                        smartlog(_line, obj, False)
-                        _bi.tarit()
+                        semantic_action(_line, objs, 0, '_bi.tarit()')
                     medium_type = 'tarit'
                 elif verb == 'isoit':
-                    # 'isoit' can either be just a verb,
-                    # or a 'verb obj' pair.
-                    if obj:
-                        smartlog(_line, obj, True)
-                        _io.isoit(obj)
+                    # 'isoit' can either be just a verb, or a 'verb obj' pair.
+                    if len(objs):
+                        semantic_action(_line, objs, 1, '_io.isoit(objs[1])')
                     else:
-                        smartlog(_line, obj, False)
-                        _io.isoit()
+                        semantic_action(_line, objs, 0, '_io.isoit()')
                     medium_type = 'isoit'
                 elif verb == 'hashit':
-                    if smartlog(_line, obj, False):
-                        stampit(progress)
-                        continue
                     if medium_type == 'tarit':
-                        _bi.hashit()
+                        semantic_action(_line, objs, 0, '_bi.hashit()')
                     elif medium_type == 'isoit':
-                        _io.hashit()
+                        semantic_action(_line, objs, 0, '_io.hashit()')
                     else:
                         raise Exception('Unknown medium to hash.')
                 else:
                     _lo.log('Bad command: %s' % _line)
+                    _lo.log('Unknown verb: %s' % verb)
+                    _lo.log('SENDING SIGTERM to pid = %d\n' % pid)
+                    signalexit()
 
                 stampit(progress)
 
