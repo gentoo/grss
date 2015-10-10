@@ -74,14 +74,14 @@ class Execute():
             if _rc:
                 _file.write('EXIT CODE: %d\n' % _rc)
                 if not failok:
-                    _file.write('SENDING SIGTERM to pid = %d\n' % pid)
+                    _file.write('SENDING SIGTERM\n')
                     _file.close()
                     signalexit()
 
         if timed_out:
             _file.write('TIMEOUT ERROR: %s\n' % cmd)
             if not failok:
-                _file.write('SENDING SIGTERM to pid = %d\n' % pid)
+                _file.write('SENDING SIGTERM\n')
                 _file.close()
                 signalexit()
 

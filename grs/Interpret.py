@@ -86,19 +86,19 @@ class Interpret(Daemon):
                 time.sleep(2.0)
 
 
-        def semantic_action(_line, objs, n, execstr):
+        def semantic_action(_line, objs, num_objs, execstr):
             """ Execute the directive """
             if self.mock_run:
                 _lo.log(_line)
                 return
             try:
-                if len(objs) < n:
+                if len(objs) < num_objs:
                     raise Exception('Number of objs for verb incorrect.')
                 exec(execstr)
-            except Exception as e:
+            except Exception as err:
                 _lo.log('Bad command: %s' % _line)
-                _lo.log('Exception throw: %s' % e)
-                _lo.log('SENDING SIGTERM to pid = %d\n' % pid)
+                _lo.log('Exception throw: %s' % err)
+                _lo.log('SENDING SIGTERM\n')
                 signalexit()
 
 
