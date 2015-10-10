@@ -44,17 +44,9 @@ class Execute():
         """
         def signalexit():
             pid = os.getpid()
-            _file.write('SENDING SIGTERM to pid = %d\n' % pid)
-            _file.close()
-            try:
-                for i in range(10):
-                    os.kill(pid, signal.SIGTERM)
-                    time.sleep(0.2)
-                while True:
-                    os.kill(pid, signal.SIGKILL)
-                    time.sleep(0.2)
-            except ProcessLookupError:
-                pass
+            while True:
+                os.kill(pid, signal.SIGTERM)
+                time.sleep(2.0)
 
         if shell:
             args = cmd
@@ -82,11 +74,15 @@ class Execute():
             if _rc:
                 _file.write('EXIT CODE: %d\n' % _rc)
                 if not failok:
+                    _file.write('SENDING SIGTERM to pid = %d\n' % pid)
+                    _file.close()
                     signalexit()
 
         if timed_out:
             _file.write('TIMEOUT ERROR: %s\n' % cmd)
             if not failok:
+                _file.write('SENDING SIGTERM to pid = %d\n' % pid)
+                _file.close()
                 signalexit()
 
         # Only close a logfile, don't close sys.stderr!
