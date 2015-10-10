@@ -65,7 +65,8 @@ class Execute():
         if not timed_out:
             # _rc = None if we had a timeout
             _rc = proc.returncode
-            _file.write('EXIT CODE: %d\n' % _rc)
+            if _rc != 0:
+                _file.write('EXIT CODE: %d\n' % _rc)
 
         if timed_out:
             _file.write('TIMEOUT ERROR: %s\n' % cmd)
