@@ -156,13 +156,19 @@ class Interpret(Daemon):
         # sync() is done unconditionally for an update run.
         progress = os.path.join(tmpdir, '.completed_sync')
         if not os.path.exists(progress) or self.update_run:
-            _sy.sync()
+            if self.mock_run:
+                _lo.log(_line)
+            else:
+                _sy.sync()
             stampit(progress)
 
         # seed() is never done for an update run
         progress = os.path.join(tmpdir, '.completed_seed')
         if not os.path.exists(progress) and not self.update_run:
-            _se.seed()
+            if self.mock_run:
+                _lo.log(_line)
+            else:
+                _se.seed()
             stampit(progress)
 
         # Read the build script and execute a line at a time.
