@@ -42,12 +42,6 @@ class Execute():
             logfile     - A file to log output to.  If logfile = None, then we log
                           to sys.stdout.
         """
-        def signalexit():
-            pid = os.getpid()
-            while True:
-                os.kill(pid, signal.SIGTERM)
-                time.sleep(2.0)
-
         if shell:
             args = cmd
         else:
@@ -71,19 +65,16 @@ class Execute():
         if not timed_out:
             # _rc = None if we had a timeout
             _rc = proc.returncode
-            if _rc:
-                _file.write('EXIT CODE: %d\n' % _rc)
-                if not failok:
-                    _file.write('SENDING SIGTERM\n')
-                    _file.close()
-                    signalexit()
+            _file.write('EXIT CODE: %d\n' % _rc)
 
         if timed_out:
             _file.write('TIMEOUT ERROR: %s\n' % cmd)
-            if not failok:
-                _file.write('SENDING SIGTERM\n')
-                _file.close()
-                signalexit()
+
+        if not failok and ( _rc != 0 or timed_out):
+            pid = os.getpid()
+            _file.write('SENDING SIGTERM: %s\n' % pid)
+            _file.close()
+            os.kill(pid, signal.SIGTERM)
 
         # Only close a logfile, don't close sys.stderr!
         if logfile:

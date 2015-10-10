@@ -64,12 +64,7 @@ class Interpret(Daemon):
                         if mypid == pid:
                             continue
                         try:
-                            for i in range(10):
-                                os.kill(pid, signal.SIGTERM)
-                                time.sleep(0.2)
-                            while True:
-                                os.kill(pid, signal.SIGKILL)
-                                time.sleep(0.2)
+                            os.kill(pid, signal.SIGKILL)
                         except ProcessLookupError:
                             pass
             try:
@@ -77,13 +72,6 @@ class Interpret(Daemon):
             except NameError:
                 pass
             sys.exit(signum + 128)
-
-
-        def signalexit():
-            pid = os.getpid()
-            while True:
-                os.kill(pid, signal.SIGTERM)
-                time.sleep(2.0)
 
 
         def semantic_action(_line, objs, nargs, func, *args):
@@ -104,7 +92,7 @@ class Interpret(Daemon):
                 _lo.log('Bad command:   %s' % _line)
                 _lo.log('Error message: %s' % err)
                 _lo.log('SENDING SIGTERM\n')
-                signalexit()
+                os.kill(os.getpid(), signal.SIGTERM)
 
 
         def stampit(progress):
@@ -262,7 +250,7 @@ class Interpret(Daemon):
                     _lo.log('Bad command: %s' % _line)
                     _lo.log('Unknown verb: %s' % verb)
                     _lo.log('SENDING SIGTERM\n')
-                    signalexit()
+                    os.kill(os.getpid(), signal.SIGTERM)
 
                 stampit(progress)
 
