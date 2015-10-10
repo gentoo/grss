@@ -166,6 +166,9 @@ class Interpret(Daemon):
             line_number = 0
             medium_type = None
             for _line in _file.readlines():
+                # Get rid of whitespace padding immediately
+                _line = _line.strip()
+
                 # Increment the line number by one and create the name of the
                 # file for the progress stamp.
                 line_number += 1
@@ -173,7 +176,7 @@ class Interpret(Daemon):
 
                 # Do nothing for lines with initial # or blank lines.  Create
                 # a progress stamp only if we are not doing an update run.
-                if re.search(r'^(#).*$', _line) or _line.strip() == '' or _line.strip() == '+':
+                if re.search(r'^(#).*$', _line) or _line == '' or _line == '+':
                     if not self.update_run:
                         stampit(progress)
                     continue
