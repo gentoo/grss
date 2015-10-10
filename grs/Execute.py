@@ -21,7 +21,6 @@ import signal
 import shlex
 import subprocess
 import sys
-import time
 from grs.Constants import CONST
 
 class Execute():
@@ -71,7 +70,7 @@ class Execute():
         if timed_out:
             _file.write('TIMEOUT ERROR: %s\n' % cmd)
 
-        if not failok and ( _rc != 0 or timed_out):
+        if not failok and (_rc != 0 or timed_out):
             pid = os.getpid()
             _file.write('SENDING SIGTERM: %s\n' % pid)
             _file.close()

@@ -20,7 +20,6 @@ import os
 import re
 import signal
 import sys
-import time
 
 from grs.Constants import CONST
 from grs.Daemon import Daemon
@@ -81,6 +80,9 @@ class Interpret(Daemon):
                 if self.mock_run:
                     _lo.log(_line)
                     return
+                # We'll catch this exception to get in into the
+                # GRS system log rather than the daemon log.  Without
+                # the try-except, it would wind up in the daemon log.
                 try:
                     func(*args)
                 except Exception as excpt:
@@ -89,10 +91,11 @@ class Interpret(Daemon):
                 err = 'Number of parameters incorrect.'
 
             if err:
+                pid = os.getpid()
                 _lo.log('Bad command:   %s' % _line)
                 _lo.log('Error message: %s' % err)
-                _lo.log('SENDING SIGTERM\n')
-                os.kill(os.getpid(), signal.SIGTERM)
+                _lo.log('SENDING SIGTERM to %d' % pid)
+                os.kill(pid, signal.SIGTERM)
 
 
         def stampit(progress):
