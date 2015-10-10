@@ -86,18 +86,23 @@ class Interpret(Daemon):
                 time.sleep(2.0)
 
 
-        def semantic_action(_line, objs, num_objs, execstr):
+        def semantic_action(_line, objs, nargs, func, *args):
             """ Execute the directive """
-            if self.mock_run:
-                _lo.log(_line)
-                return
-            try:
-                if len(objs) < num_objs:
-                    raise Exception('Number of objs for verb incorrect.')
-                exec(execstr)
-            except Exception as err:
-                _lo.log('Bad command: %s' % _line)
-                _lo.log('Exception throw: %s' % err)
+            err = None
+            if len(objs) == nargs:
+                if self.mock_run:
+                    _lo.log(_line)
+                    return
+                try:
+                   f(*args) 
+                except Exception as err:
+                    pass
+            else:
+                err = 'Number of parameters incorrect.'
+
+            if err:
+                _lo.log('Bad command:   %s' % _line)
+                _lo.log('Error message: %s' % err)
                 _lo.log('SENDING SIGTERM\n')
                 signalexit()
 
@@ -213,44 +218,44 @@ class Interpret(Daemon):
                 if verb == 'log':
                     if objs[0] == 'stamp':
                         objs[0] = '='*80
-                    semantic_action(_line, objs, 1, '_lo.log(\' \'.join(objs))')
+                    semantic_action(_line, objs, 1, _lo.log, ' '.join(objs))
                 elif verb == 'mount':
-                    semantic_action(_line, objs, 0, '_md.mount_all()')
+                    semantic_action(_line, objs, 0, _md.mount_all)
                 elif verb == 'unmount':
-                    semantic_action(_line, objs, 0, '_md.umount_all()')
+                    semantic_action(_line, objs, 0, _md.umount_all)
                 elif verb == 'populate':
-                    semantic_action(_line, objs, 1, '_po.populate(cycle=int(objs[0]))')
+                    semantic_action(_line, objs, 1, _po.populate, int(objs[0]))
                 elif verb == 'runscript':
-                    semantic_action(_line, objs, 1, '_ru.runscript(objs[0])')
+                    semantic_action(_line, objs, 1, _ru.runscript, objs[0])
                 elif verb == 'pivot':
-                    semantic_action(_line, objs, 1, '_pc.pivot(objs[0], _md)')
+                    semantic_action(_line, objs, 1, _pc.pivot, objs[0], _md)
                 elif verb == 'kernel':
-                    semantic_action(_line, objs, 0, '_ke.kernel()')
+                    semantic_action(_line, objs, 0, _ke.kernel)
                 elif verb == 'tarit':
                     # 'tarit' can either be just a verb, or a 'verb obj' pair.
                     if len(objs):
-                        semantic_action(_line, objs, 1, '_bi.tarit(objs[0])')
+                        semantic_action(_line, objs, 1, _bi.tarit, objs[0])
                     else:
-                        semantic_action(_line, objs, 0, '_bi.tarit()')
+                        semantic_action(_line, objs, 0, _bi.tarit)
                     medium_type = 'tarit'
                 elif verb == 'isoit':
                     # 'isoit' can either be just a verb, or a 'verb obj' pair.
                     if len(objs):
-                        semantic_action(_line, objs, 1, '_io.isoit(objs[1])')
+                        semantic_action(_line, objs, 1, _io.isoit, objs[0])
                     else:
-                        semantic_action(_line, objs, 0, '_io.isoit()')
+                        semantic_action(_line, objs, 0, _io.isoit)
                     medium_type = 'isoit'
                 elif verb == 'hashit':
                     if medium_type == 'tarit':
-                        semantic_action(_line, objs, 0, '_bi.hashit()')
+                        semantic_action(_line, objs, 0, _bi.hashit)
                     elif medium_type == 'isoit':
-                        semantic_action(_line, objs, 0, '_io.hashit()')
+                        semantic_action(_line, objs, 0, _io.hashit)
                     else:
                         raise Exception('Unknown medium to hash.')
                 else:
                     _lo.log('Bad command: %s' % _line)
                     _lo.log('Unknown verb: %s' % verb)
-                    _lo.log('SENDING SIGTERM to pid = %d\n' % pid)
+                    _lo.log('SENDING SIGTERM\n')
                     signalexit()
 
                 stampit(progress)
