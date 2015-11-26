@@ -82,7 +82,11 @@ class WorldConf():
         # Construct a list of canonical named files for uninstalled pkgs.
         slot_atoms = []
         for _cp in uninstalled:
-            _cpv = portdb.cp_list(_cp)[0]
+            try:
+                _cpv = portdb.cp_list(_cp)[0]
+            except IndexError:
+                print('Package with no ebuilds: %s' % _cp)
+                continue
             slotvar = portdb.aux_get(_cpv, ['SLOT'])[0]
             try:
                 _match = re.search(r'(.+?)\/(.+)', slotvar)
