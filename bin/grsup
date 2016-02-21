@@ -106,7 +106,7 @@ def install_kernel(version = 'latest', logfile = CONST.LOGFILE):
     # Untar it at '/'.  tar will not clobber files.
     cwd = os.getcwd()
     os.chdir('/')
-    cmd = 'tar --overwrite -Jxf %s' % kpath
+    cmd = 'tar --overwrite -hJxf %s' % kpath
     Execute(cmd, timeout=600, logfile=logfile)
     os.chdir(cwd)
 
