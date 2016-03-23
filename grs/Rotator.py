@@ -42,11 +42,12 @@ class Rotator():
 
             obj's paste an upper limit are deleted.
         """
-        objs = glob.glob('%s.*' % obj)
+        objs = glob.glob('%s.[0-9]*' % obj)
         indexed_obj = {}
         for _obj in objs:
             _match = re.search(r'^.+\.(\d+)$', _obj)
-            indexed_obj[int(_match.group(1))] = _obj
+            if (_match.group(1)):
+                indexed_obj[int(_match.group(1))] = _obj
         count = list(indexed_obj.keys())
         count.sort()
         count.reverse()
