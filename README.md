@@ -64,10 +64,6 @@ the previous release plus any updates since. The only reason to push out a new
 release tarball is to avoid having to subsequently push out a large number of
 updates for each new installation.
 
-CAVEAT: This is work in progress. A few of the above point are marginally
-working or implemented. This warning will disappear after this whole project
-moves past being experimental. 
-
 Features:
 * The GRS suite does not hard code any steps for the release or update runs.
 Rather, a build script on the git repository describes the steps for building
