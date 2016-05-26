@@ -44,7 +44,7 @@ def useflags(config, p):
     # We only include select USE_EXPAND flags. Note becaue of how we match 'abi_',
     # for example, will match abi_ppc, abi_mips etc.  Hopefully this will not lead
     # to any false hits.
-    expand = [ 'kernel_', 'elibc_', 'userland_', 'abi_', 'linguas_', 'python_' ]
+    expand = [ 'kernel_', 'elibc_', 'userland_', 'abi_', 'linguas_', 'python_', 'ruby_' ]
 
     # Remove any selected USE_EXPAND and any EXPAND_HIDDEN flags from IUSE flags
     my_iuse = copy.deepcopy(iuse)
