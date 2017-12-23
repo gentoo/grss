@@ -227,7 +227,7 @@ class Interpret(Daemon):
                 elif verb == 'pivot':
                     semantic_action(_line, objs, 1, _pc.pivot, objs[0], _md)
                 elif verb == 'kernel':
-                    semantic_action(_line, objs, 0, _ke.kernel)
+                    semantic_action(_line, objs, 0, _ke.kernel, objs[0])
                 elif verb == 'tarit':
                     # 'tarit' can either be just a verb, or a 'verb obj' pair.
                     if len(objs):

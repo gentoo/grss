@@ -69,7 +69,7 @@ class Kernel():
         return (gentoo_version, pkg_name, has_modules)
 
 
-    def kernel(self):
+    def kernel(self, arch='x86_64'):
         """ This emerges the kernel sources to a directory outside of the
             fledgeling system's portage configroot, builds and installs it
             to yet another external directory, bundles the kernel and modules
@@ -108,8 +108,8 @@ class Kernel():
 
         # Build and install the image outside the portage configroot so
         # we can both rsync it in *and* tarball it for downloads via grsup.
-        # TODO: add more options (eg splash and firmware), which can be
-        # specified vi the kernel line in the build script.
+        # NOTE: more options (eg splash and firmware), can be specified
+        # via the kernel line in the build script.
         cmd = 'genkernel '
         cmd += '--logfile=/dev/null '
         cmd += '--no-save-config '
@@ -122,6 +122,7 @@ class Kernel():
         cmd += '--bootdir=%s '       % boot_dir
         cmd += '--module-prefix=%s ' % image_dir
         cmd += '--modprobedir=%s '   % modprobe_dir
+        cmd += '--arch-override=%s ' % arch
         if has_modules:
             cmd += 'all'
         else:
