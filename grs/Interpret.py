@@ -27,6 +27,7 @@ from grs.ISOIt import ISOIt
 from grs.Log import Log
 from grs.Kernel import Kernel
 from grs.MountDirectories import MountDirectories
+from grs.Netboot import Netboot
 from grs.PivotChroot import PivotChroot
 from grs.Populate import Populate
 from grs.RunScript import RunScript
