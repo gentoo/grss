@@ -134,6 +134,7 @@ class Interpret(Daemon):
         _ke = Kernel(libdir, portage_configroot, kernelroot, package, logfile)
         _bi = TarIt(name, portage_configroot, logfile)
         _io = ISOIt(name, libdir, tmpdir, portage_configroot, logfile)
+        _nb - Netboot(name, libdir, tmpdir, portage_configroot, kernelroot, logfile)
 
         # Just in case /var/tmp/grs doesn't already exist.
         os.makedirs(tmpdir, mode=0o755, exist_ok=True)
@@ -242,11 +243,20 @@ class Interpret(Daemon):
                     else:
                         semantic_action(_line, objs, 0, _io.isoit)
                     medium_type = 'isoit'
+                elif verb == 'netbootit':
+                    # 'netbootit' can either be just a verb, or a 'verb obj' pair.
+                    if len(objs):
+                        semantic_action(_line, objs, 1, _nb.netbootit, objs[0])
+                    else:
+                        semantic_action(_line, objs, 0, _nb.netbootit)
+                    medium_type = 'netbootit'
                 elif verb == 'hashit':
                     if medium_type == 'tarit':
                         semantic_action(_line, objs, 0, _bi.hashit)
                     elif medium_type == 'isoit':
                         semantic_action(_line, objs, 0, _io.hashit)
+                    elif medium_type == 'netbootit':
+                        semantic_action(_line, objs, 0, _nb.hashit)
                     else:
                         raise Exception('Unknown medium to hash.')
                 else:
