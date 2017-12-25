@@ -135,7 +135,7 @@ class Interpret(Daemon):
         _ke = Kernel(libdir, portage_configroot, kernelroot, package, logfile)
         _bi = TarIt(name, portage_configroot, logfile)
         _io = ISOIt(name, libdir, tmpdir, portage_configroot, logfile)
-        _nb - Netboot(name, libdir, tmpdir, portage_configroot, kernelroot, logfile)
+        _nb = Netboot(name, libdir, tmpdir, portage_configroot, kernelroot, logfile)
 
         # Just in case /var/tmp/grs doesn't already exist.
         os.makedirs(tmpdir, mode=0o755, exist_ok=True)
