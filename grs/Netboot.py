@@ -38,6 +38,7 @@ class Netboot(HashIt):
         self.libdir = libdir
         self.tmpdir = tmpdir
         self.portage_configroot = portage_configroot
+        self.kernelroot = kernelroot
         self.logfile = logfile
         # Prepare a year, month and day for a name timestamp.
         self.year = str(datetime.now().year).zfill(4)
