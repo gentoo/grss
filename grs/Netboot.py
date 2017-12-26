@@ -45,7 +45,8 @@ class Netboot(HashIt):
         self.month = str(datetime.now().month).zfill(2)
         self.day = str(datetime.now().day).zfill(2)
         self.medium_name = 'initramfs-%s-%s%s%s' % (name, self.year, self.month, self.day)
-        self.digest_name = 'initramfs-%s.DIGESTS' % self.medium_name
+        self.digest_name = '%s.DIGESTS' % self.medium_name
+        self.kernelname = 'kernel-%s-%s%s%s' % (name, self.year, self.month, self.day)
 
 
     def netbootit(self, alt_name=None):
@@ -54,30 +55,25 @@ class Netboot(HashIt):
             self.medium_name = 'initramfs-%s-%s%s%s' % (alt_name, self.year, self.month, self.day)
             self.digest_name = 'initramfs-%s.DIGESTS' % self.medium_name
 
-        # 0. Pepare netboot directory
-        netboot_dir = os.path.join(self.tmpdir, 'netboot')
-        shutil.rmtree(netboot_dir, ignore_errors=True)
-        os.makedirs(netboot_dir, mode=0o755, exist_ok=False)
-
-        # 1. Move the kernel into the netboot directory.
-        kernel_dir = os.path.join(self.portage_configroot, 'boot')
-        kernel_path = os.path.join(kernel_dir, 'kernel')
-        shutil.copy(kernel_path, netboot_dir)
+        # 1. Move the kernel to the tmpdir directory.
+        kernel_src = os.path.join(self.portage_configroot, 'boot/kernel')
+        kernel_dst = os.path.join(self.tmpdir, self.kernelname)
+        shutil.copy(kernel_src, kernel_dst)
 
         # 2. Unpack the initramfs into kernelroot/initramfs direcotry
         initramfs_root = os.path.join(self.kernelroot, 'initramfs')
         shutil.rmtree(initramfs_root, ignore_errors=True)
         os.makedirs(initramfs_root, mode=0o755, exist_ok=False)
 
-        initramfs_path = os.path.join(kernel_dir, 'initramfs')
-        cmd = 'xz -dc %s | cpio -idv' % (initramfs_path)
+        initramfs_src = os.path.join(self.portage_configroot, 'boot/initramfs')
+        cmd = 'xz -dc %s | cpio -idv' % (initramfs_src)
 
         cwd = os.getcwd()
         os.chdir(initramfs_root)
         Execute(cmd, timeout=600, logfile=self.logfile, shell=True)
         os.chdir(cwd)
 
-        # 3. Make the squashfs image in the netboot directory.
+        # 3. Make the squashfs image in the tmpdir directory.
         squashfs_dir = os.path.join(initramfs_root, 'mnt/cdrom')
         shutil.rmtree(squashfs_dir, ignore_errors=True)
         os.makedirs(squashfs_dir, mode=0o755, exist_ok=False)
@@ -92,8 +88,8 @@ class Netboot(HashIt):
         os.chmod(init_dst, 0o0755)
 
         # 5. Repack
-        initramfs_path = os.path.join(netboot_dir, self.medium_name)
-        cmd = 'find . -print | cpio -H newc -o | gzip -9 > %s' % initramfs_path
+        initramfs_dst = os.path.join(self.tmpdir, self.medium_name)
+        cmd = 'find . -print | cpio -H newc -o | gzip -9 > %s' % initramfs_dst
 
         cwd = os.getcwd()
         os.chdir(initramfs_root)
