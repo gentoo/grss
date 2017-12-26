@@ -86,9 +86,10 @@ class Netboot(HashIt):
         Execute(cmd, timeout=None, logfile=self.logfile)
 
         # 4. Copy in the init script
-        init_path = os.path.join(self.libdir, 'scripts/init')
-        shutil.copy(init_path, initramfs_root)
-
+        init_src = os.path.join(self.libdir, 'scripts/init')
+        init_dst = os.path.join(initramfs_root, 'init')
+        shutil.copy(init_src, init_dst)
+        os.chmod(init_dst, 0o0755)
 
         # 5. Repack
         initramfs_path = os.path.join(netboot_dir, self.medium_name)
