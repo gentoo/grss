@@ -53,9 +53,9 @@ class Netboot(HashIt):
         """ TODO """
         if alt_name:
             self.medium_name = 'initramfs-%s-%s%s%s' % (alt_name, self.year, self.month, self.day)
-            self.digest_name = 'initramfs-%s.DIGESTS' % self.medium_name
+            self.digest_name = '%s.DIGESTS' % self.medium_name
 
-        # 1. Move the kernel to the tmpdir directory.
+        # 1. Copy the kernel to the tmpdir directory.
         kernel_src = os.path.join(self.portage_configroot, 'boot/kernel')
         kernel_dst = os.path.join(self.tmpdir, self.kernelname)
         shutil.copy(kernel_src, kernel_dst)
