@@ -65,6 +65,7 @@ class Netboot(HashIt):
         shutil.rmtree(initramfs_root, ignore_errors=True)
         os.makedirs(initramfs_root, mode=0o755, exist_ok=False)
 
+        # We will only use xz compression
         initramfs_src = os.path.join(self.portage_configroot, 'boot/initramfs')
         cmd = 'xz -dc %s | cpio -idv' % (initramfs_src)
 
@@ -97,7 +98,7 @@ class Netboot(HashIt):
 
         # 5. Repack
         initramfs_dst = os.path.join(self.tmpdir, self.medium_name)
-        cmd = 'find . -print | cpio -H newc -o | gzip -9 > %s' % initramfs_dst
+        cmd = 'find . -print | cpio -H newc -o | xz -9e --check=none -z -f > %s' % initramfs_dst
 
         cwd = os.getcwd()
         os.chdir(initramfs_root)
