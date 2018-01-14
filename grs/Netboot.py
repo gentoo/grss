@@ -47,7 +47,7 @@ class Netboot(HashIt):
         self.medium_name = 'initramfs-%s-%s%s%s' % (name, self.year, self.month, self.day)
         self.digest_name = '%s.DIGESTS' % self.medium_name
         self.kernelname = 'kernel-%s-%s%s%s' % (name, self.year, self.month, self.day)
-        self.cd_name = '%s-%s%s%s.ISO' % (name, self.year, self.month, self.day)
+        self.cd_name = '%s-%s%s%s.iso' % (name, self.year, self.month, self.day)
 
 
     def netbootit(self, do_cd=None, alt_name=None):
@@ -118,8 +118,9 @@ class Netboot(HashIt):
         # TODO: This code is rushed and we need a better way of
         # locating the tarball
         if do_cd == 'cd':
-            tarball_path = '/usr/share/grs-*/ISO-*.tar.gz'
-            cmd = 'tar --xattrs -xf %s -C %s' % (tarball_path, initramfs_root)
+            # TODO: Before a regular release, we'll have to fix this path
+            tarball_path = '/usr/share/grs-9999/ISO-1.tar.gz'
+            cmd = 'tar --xattrs -xf %s -C %s' % (tarball_path, self.kernelroot)
             Execute(cmd, timeout=120, logfile=self.logfile)
 
             # Note: we are copying the netboot kernel and initramfs into
