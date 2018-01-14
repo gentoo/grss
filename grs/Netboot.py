@@ -119,12 +119,8 @@ class Netboot(HashIt):
         # locating the tarball
         if do_cd == 'cd':
             tarball_path = '/usr/share/grs-*/ISO-*.tar.gz'
-            cmd = 'tar -Jcf %s .' % (tarball_path)
-
-            cwd = os.getcwd()
-            os.chdir(initramfs_root)
-            Execute(cmd, timeout=600, logfile=self.logfile, shell=True)
-            os.chdir(cwd)
+            cmd = 'tar --xattrs -xf %s -C %s' % (tarball_path, initramfs_root)
+            Execute(cmd, timeout=120, logfile=self.logfile)
 
             # Note: we are copying the netboot kernel and initramfs into
             # the ISO directory, so the kernel_dst and initramfs_dst above
