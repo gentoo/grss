@@ -47,9 +47,10 @@ class Netboot(HashIt):
         self.medium_name = 'initramfs-%s-%s%s%s' % (name, self.year, self.month, self.day)
         self.digest_name = '%s.DIGESTS' % self.medium_name
         self.kernelname = 'kernel-%s-%s%s%s' % (name, self.year, self.month, self.day)
+        self.cd_name = '%s-%s%s%s.ISO' % (name, self.year, self.month, self.day)
 
 
-    def netbootit(self, alt_name=None):
+    def netbootit(self, do_cd=None, alt_name=None):
         """ TODO """
         if alt_name:
             self.medium_name = 'initramfs-%s-%s%s%s' % (alt_name, self.year, self.month, self.day)
@@ -112,3 +113,52 @@ class Netboot(HashIt):
         os.chdir(initramfs_root)
         Execute(cmd, timeout=600, logfile=self.logfile, shell=True)
         os.chdir(cwd)
+
+        # 6. If do_cd='cd' then we package a bootable CD image
+        # TODO: This code is rushed and we need a better way of
+        # locating the tarball
+        if do_cd == 'cd':
+            tarball_path = '/usr/share/grs-*/ISO-*.tar.gz'
+            cmd = 'tar -Jcf %s .' % (tarball_path)
+
+            cwd = os.getcwd()
+            os.chdir(initramfs_root)
+            Execute(cmd, timeout=600, logfile=self.logfile, shell=True)
+            os.chdir(cwd)
+
+            # Note: we are copying the netboot kernel and initramfs into
+            # the ISO directory, so the kernel_dst and initramfs_dst above
+            # are the sources for these files
+            iso_dir = os.path.join(self.kernelroot, 'ISO')
+            isolinux_dir = os.path.join(iso_dir, 'isolinux')
+            shutil.copy(kernel_dst, '%s/kernel' % (isolinux_dir))
+            shutil.copy(initramfs_dst, '%s/initrd' % (isolinux_dir))
+
+            # Note gentoo.efimg and isolinux.bin are in the ISO tarball
+            # isolinux.bin comes from sys-boot/syslinux
+            # gentoo.efimg is created using
+            #  1) dd if=/dev/zero of=gentoo.efimg bs=1k count=16k
+            #  2) mkfs.vfat -F 16 -n GENTOO gentoo.efimg
+            # gentoo.efimg contains ./EFI/BOOT/BOOTX64.EFI
+            # BOOTX64.EFI is created using
+            #  1) mount -o loop gentoo.efimg zzz
+            #  2) mkdir -p zzz/EFI/BOOT/
+            #  3) grub-mkstandalone /boot/grub/grub.cfg=grub-stub.cfg --compress=xz -O x86_64-efi -o zzz/EFI/BOOT/BOOTX64.EFI
+            #  4) umount zzz
+            # Here grub-stub.cfg contains the following lines
+            #  search --no-floppy --set=root --file /grub/grub.cfg
+            #  configfile /grub/grub.cfg
+            args = '-J -R -z '                      # Joliet/Rock Ridge/RRIP
+            args += '-b isolinux/isolinux.bin '     # Use isolinux boot
+            args += '-c isolinux/boot.cat '         # Create the catalog file
+            args += '-no-emul-boot '                # No disk emulation for El Torito
+            args += '-boot-load-size 4 '            # 4x512-bit sectors for no-emulation mode
+            args += '-boot-info-table '             # Create El Torito boot info table
+            args += '-eltorito-alt-boot '           # Add an alternative boot entry
+            args += '-eltorito-platform efi '       # The additional boot entry is EFI
+            args += '-b gentoo.efimg '              # Use EFI boot
+            args += '-no-emul-boot '                # No disk emulation for El Torito
+
+            cd_path = os.path.join(self.tmpdir, self.cd_name)
+            cmd = 'mkisofs %s -o %s %s' % (args, cd_path, iso_dir)
+            Execute(cmd, timeout=None, logfile=self.logfile)
