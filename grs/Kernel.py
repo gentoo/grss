@@ -123,7 +123,6 @@ class Kernel():
         cmd += '--module-prefix=%s ' % image_dir
         cmd += '--modprobedir=%s '   % modprobe_dir
         cmd += '--arch-override=%s ' % arch
-        cmd += '--utils-arch=%s '    % arch
         if has_modules:
             cmd += 'all'
         else:

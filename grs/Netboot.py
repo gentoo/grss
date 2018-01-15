@@ -81,6 +81,7 @@ class Netboot(HashIt):
         a kernel and initramfs is to drop the Kernel.py module altogether and
         emerge genkernel in the fledgeling system via the script directive, set
         genkernel.conf via the populate directive and then just run genkernel.
+        '''
 
         # 2.5 Don't trust genkernel's busybox, but copy in our own version
         # built in the system chroot.  This ensures it will work on the
@@ -89,7 +90,6 @@ class Netboot(HashIt):
         busybox_src = os.path.join(self.portage_configroot, 'bin/busybox')
         busybox_dst = os.path.join(self.kernelroot, 'initramfs/bin/busybox')
         shutil.copy(busybox_src, busybox_dst)
-        '''
 
         # 3. Make the squashfs image in the tmpdir directory.
         squashfs_dir = os.path.join(initramfs_root, 'mnt/cdrom')
