@@ -119,7 +119,7 @@ class Netboot(HashIt):
         # locating the tarball
         if do_cd == 'cd':
             # TODO: Before a regular release, we'll have to fix this path
-            tarball_path = '/usr/share/grs-9999/ISO-1.tar.gz'
+            tarball_path = '/usr/share/grs/ISO-1.tar.gz'
             cmd = 'tar --xattrs -xf %s -C %s' % (tarball_path, self.kernelroot)
             Execute(cmd, timeout=120, logfile=self.logfile)
 
