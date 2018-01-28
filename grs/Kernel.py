@@ -41,6 +41,7 @@ class Kernel():
         self.package = package
         self.logfile = logfile
         self.kernel_config = os.path.join(self.libdir, 'scripts/kernel-config')
+        self.busybox_config = os.path.join(self.libdir, 'scripts/busybox-config')
 
 
     def parse_kernel_config(self):
@@ -127,10 +128,13 @@ class Kernel():
         cmd += '--module-prefix=%s ' % image_dir
         cmd += '--modprobedir=%s '   % modprobe_dir
         cmd += '--arch-override=%s ' % arch
+        if os.path.isfile(self.busybox_config):
+            cmd += '--busybox-config=%s ' % self.busybox_config
         if has_modules:
             cmd += 'all'
         else:
             cmd += 'bzImage'
+
         Execute(cmd, timeout=None, logfile=self.logfile)
 
         # Strip the modules to shrink their size enormously!
