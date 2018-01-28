@@ -29,8 +29,12 @@ class Seed(Rotator):
     """ Download a stage tarball and unpack it into an empty system portage configroot. """
 
     def __init__(
-            self, stage_uri, tmpdir=CONST.TMPDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT,
-            package=CONST.PACKAGE, logfile=CONST.LOGFILE
+            self,
+            stage_uri,
+            tmpdir=CONST.TMPDIR,
+            portage_configroot=CONST.PORTAGE_CONFIGROOT,
+            package=CONST.PACKAGE,
+            logfile=CONST.LOGFILE
     ):
         self.stage_uri = stage_uri
         self.portage_configroot = portage_configroot

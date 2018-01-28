@@ -27,8 +27,11 @@ class Populate():
     """
 
     def __init__(
-            self, libdir=CONST.LIBDIR, workdir=CONST.WORKDIR,
-            portage_configroot=CONST.PORTAGE_CONFIGROOT, logfile=CONST.LOGFILE
+            self,
+            libdir=CONST.LIBDIR,
+            workdir=CONST.WORKDIR,
+            portage_configroot=CONST.PORTAGE_CONFIGROOT,
+            logfile=CONST.LOGFILE
     ):
         self.libdir = libdir
         self.workdir = workdir

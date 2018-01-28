@@ -27,8 +27,12 @@ class ISOIt(HashIt):
     """ Create a bootable ISO of the system. """
 
     def __init__(
-            self, name, libdir=CONST.LIBDIR, tmpdir=CONST.TMPDIR,
-            portage_configroot=CONST.PORTAGE_CONFIGROOT, logfile=CONST.LOGFILE
+            self,
+            name,
+            libdir=CONST.LIBDIR,
+            tmpdir=CONST.TMPDIR,
+            portage_configroot=CONST.PORTAGE_CONFIGROOT,
+            logfile=CONST.LOGFILE
     ):
         self.libdir = libdir
         self.tmpdir = tmpdir

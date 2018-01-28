@@ -25,7 +25,9 @@ class RunScript():
     """ Run a script within the chroot. """
 
     def __init__(
-            self, libdir=CONST.LIBDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT,
+            self,
+            libdir=CONST.LIBDIR,
+            portage_configroot=CONST.PORTAGE_CONFIGROOT,
             logfile=CONST.LOGFILE
     ):
         self.libdir = libdir

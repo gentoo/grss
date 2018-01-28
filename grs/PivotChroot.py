@@ -27,7 +27,9 @@ class PivotChroot(Rotator):
     """ Move an inner chroot out to the new system portage configroot.  """
 
     def __init__(
-            self, tmpdir=CONST.TMPDIR, portage_configroot=CONST.PORTAGE_CONFIGROOT,
+            self,
+            tmpdir=CONST.TMPDIR,
+            portage_configroot=CONST.PORTAGE_CONFIGROOT,
             logfile=CONST.LOGFILE
     ):
         self.tmpdir = tmpdir
