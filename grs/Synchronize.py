@@ -43,6 +43,10 @@ class Synchronize():
             cmd = 'git clone %s %s' % (self.remote_repo, self.local_repo)
             Execute(cmd, timeout=60, logfile=self.logfile)
 
+        # Make sure we're on the correct branch for the desired GRS system.
+        cmd = 'git -C %s checkout %s' % (self.local_repo, self.branch)
+        Execute(cmd, timeout=60, logfile=self.logfile)
+
         # If there is a .gitmodules, then init/update the submodules
         git_modulesfile = os.path.join(self.local_repo, '.gitmodules')
         if os.path.isfile(git_modulesfile):
@@ -52,10 +56,6 @@ class Synchronize():
             Execute(cmd, timeout=60, logfile=self.logfile)
             cmd = 'git -C %s submodule update' % self.local_repo
             Execute(cmd, timeout=60, logfile=self.logfile)
-
-        # Make sure we're on the correct branch for the desired GRS system.
-        cmd = 'git -C %s checkout %s' % (self.local_repo, self.branch)
-        Execute(cmd, timeout=60, logfile=self.logfile)
 
 
     def isgitdir(self):
