@@ -30,9 +30,6 @@ class Synchronize():
         self.logfile = logfile
 
     def sync(self):
-        # If there is a .gitmodules, then update the submodules
-        git_modulesfile = os.path.join(self.local_repo, '.gitmodules')
-
         if self.isgitdir():
             # If the local repo exists, then make it pristine an pull
             cmd = 'git -C %s reset HEAD --hard' % self.local_repo
@@ -41,18 +38,20 @@ class Synchronize():
             Execute(cmd, timeout=60, logfile=self.logfile)
             cmd = 'git -C %s pull' % self.local_repo
             Execute(cmd, timeout=60, logfile=self.logfile)
-            if os.path.isfile(git_modulesfile):
-                cmd = 'git -C %s submodule update' % self.local_repo
-                Execute(cmd, timeout=60, logfile=self.logfile)
         else:
             # else clone afresh.
             cmd = 'git clone %s %s' % (self.remote_repo, self.local_repo)
             Execute(cmd, timeout=60, logfile=self.logfile)
-            if os.path.isfile(git_modulesfile):
-                cmd = 'git -C %s submodule init' % self.local_repo
-                Execute(cmd, timeout=60, logfile=self.logfile)
-                cmd = 'git -C %s submodule update' % self.local_repo
-                Execute(cmd, timeout=60, logfile=self.logfile)
+
+        # If there is a .gitmodules, then init/update the submodules
+        git_modulesfile = os.path.join(self.local_repo, '.gitmodules')
+        if os.path.isfile(git_modulesfile):
+            # This may re-init submodules, but its harmless.  We need
+            # to keep trying for newly added modules.
+            cmd = 'git -C %s submodule init' % self.local_repo
+            Execute(cmd, timeout=60, logfile=self.logfile)
+            cmd = 'git -C %s submodule update' % self.local_repo
+            Execute(cmd, timeout=60, logfile=self.logfile)
 
         # Make sure we're on the correct branch for the desired GRS system.
         cmd = 'git -C %s checkout %s' % (self.local_repo, self.branch)
