@@ -42,6 +42,7 @@ class Kernel():
         self.logfile = logfile
         self.kernel_config = os.path.join(self.libdir, 'scripts/kernel-config')
         self.busybox_config = os.path.join(self.libdir, 'scripts/busybox-config')
+        self.genkernel_config = os.path.join(self.libdir, 'scripts/genkernel.conf')
 
 
     def parse_kernel_config(self):
@@ -130,6 +131,8 @@ class Kernel():
         cmd += '--arch-override=%s ' % arch
         if os.path.isfile(self.busybox_config):
             cmd += '--busybox-config=%s ' % self.busybox_config
+        if os.path.isfile(self.genkernel_config):
+            cmd += '--config=%s ' % self.genkernel_config):
         if has_modules:
             cmd += 'all'
         else:
