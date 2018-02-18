@@ -132,7 +132,7 @@ class Kernel():
         if os.path.isfile(self.busybox_config):
             cmd += '--busybox-config=%s ' % self.busybox_config
         if os.path.isfile(self.genkernel_config):
-            cmd += '--config=%s ' % self.genkernel_config):
+            cmd += '--config=%s ' % self.genkernel_config
         if has_modules:
             cmd += 'all'
         else:
