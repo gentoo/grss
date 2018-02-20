@@ -50,11 +50,8 @@ class Synchronize():
         # If there is a .gitmodules, then init/update the submodules
         git_modulesfile = os.path.join(self.local_repo, '.gitmodules')
         if os.path.isfile(git_modulesfile):
-            # This may re-init submodules, but its harmless.  We need
-            # to keep trying for newly added modules.
-            cmd = 'git -C %s submodule init' % self.local_repo
-            Execute(cmd, timeout=60, logfile=self.logfile)
-            cmd = 'git -C %s submodule update --remote' % self.local_repo
+            # Recursively update any submodules following the remote branch
+            cmd = 'git -C %s submodule update --init --recursive --remote' % self.local_repo
             Execute(cmd, timeout=60, logfile=self.logfile)
 
 
