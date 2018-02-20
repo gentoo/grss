@@ -54,7 +54,7 @@ class Synchronize():
             # to keep trying for newly added modules.
             cmd = 'git -C %s submodule init' % self.local_repo
             Execute(cmd, timeout=60, logfile=self.logfile)
-            cmd = 'git -C %s submodule update' % self.local_repo
+            cmd = 'git -C %s submodule update --remote' % self.local_repo
             Execute(cmd, timeout=60, logfile=self.logfile)
 
 
