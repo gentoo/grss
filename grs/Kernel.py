@@ -120,7 +120,6 @@ class Kernel():
         cmd += '--logfile=/dev/null '
         cmd += '--no-save-config '
         cmd += '--makeopts=-j9 '
-        cmd += '--no-firmware '
         cmd += '--symlink '
         cmd += '--no-mountboot '
         cmd += '--kernel-config=%s ' % self.kernel_config
