@@ -92,6 +92,10 @@ class Kernel():
         boot_dir = os.path.join(image_dir, 'boot')
         modprobe_dir = os.path.join(image_dir, 'etc/modprobe.d')
         modules_dir = os.path.join(image_dir, 'lib/modules')
+
+        # The firmware directory, if it exists, will be in self.portage_configroot
+        firmware_dir = os.path.join(self.portage_configroot, 'lib/firmware')
+
         # Prepare tarball filename and path.  If the tarball already exists,
         # don't rebuild/reinstall it.  Note: It should have been installed to
         # the system's portage configroot when it was first built, so no need
@@ -132,6 +136,8 @@ class Kernel():
             cmd += '--busybox-config=%s ' % self.busybox_config
         if os.path.isfile(self.genkernel_config):
             cmd += '--config=%s ' % self.genkernel_config
+        if  os.path.isdir(firmware_dir):
+            cmd += '--firmware-dir=%s ' % firmware_dir
         if has_modules:
             cmd += 'all'
         else:
