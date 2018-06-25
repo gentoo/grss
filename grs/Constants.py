@@ -57,6 +57,12 @@ class Constants():
     """
 
     def __init__(self, configfile='/etc/grs/systems.conf'):
+        # Grab an alternative config file from the env var CONFIGFILE
+        # TODO: I've designed myself into a bit of a corner here, and
+        # there is no easy way of adding a command line option to grsrun
+        # or grsup which propagates to this class.
+        if 'CONFIGFILE' in os.environ:
+            configfile = os.environ['CONFIGFILE']
         # If there's no config file, we're dead in the water.
         if not os.path.isfile(configfile):
             raise Exception('Configuration file %s not found\n' % configfile)
