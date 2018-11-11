@@ -34,17 +34,17 @@ class TarIt(HashIt):
         self.portage_configroot = portage_configroot
         self.logfile = logfile
         # Prepare a year, month and day for a tarball name timestamp.
-        self.year = str(datetime.now().year).zfill(4)
-        self.month = str(datetime.now().month).zfill(2)
-        self.day = str(datetime.now().day).zfill(2)
-        self.medium_name = '%s-%s%s%s.tar.xz' % (name, self.year, self.month, self.day)
+        year = str(datetime.now().year).zfill(4)
+        month = str(datetime.now().month).zfill(2)
+        day = str(datetime.now().day).zfill(2)
+        self.medium_name = '%s-%s%s%s.tar.xz' % (name, year, month, day)
         self.digest_name = '%s.DIGESTS' % self.medium_name
 
 
     def tarit(self, alt_name=None):
         # Create the tarball with the default name unless an alt_name is given.
         if alt_name:
-            self.medium_name = '%s-%s%s%s.tar.xz' % (alt_name, self.year, self.month, self.day)
+            self.medium_name = '%s.tar.xz' % alt_name)
             self.digest_name = '%s.DIGESTS' % self.medium_name
         # We have to cd into the system's portage configroot and then out again.
         cwd = os.getcwd()
