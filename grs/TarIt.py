@@ -44,7 +44,7 @@ class TarIt(HashIt):
     def tarit(self, alt_name=None):
         # Create the tarball with the default name unless an alt_name is given.
         if alt_name:
-            self.medium_name = '%s.tar.xz' % alt_name)
+            self.medium_name = '%s.tar.xz' % alt_name
             self.digest_name = '%s.DIGESTS' % self.medium_name
         # We have to cd into the system's portage configroot and then out again.
         cwd = os.getcwd()
