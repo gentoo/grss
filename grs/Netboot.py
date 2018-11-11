@@ -41,20 +41,22 @@ class Netboot(HashIt):
         self.kernelroot = kernelroot
         self.logfile = logfile
         # Prepare a year, month and day for a name timestamp.
-        self.year = str(datetime.now().year).zfill(4)
-        self.month = str(datetime.now().month).zfill(2)
-        self.day = str(datetime.now().day).zfill(2)
-        self.medium_name = 'initramfs-%s-%s%s%s' % (name, self.year, self.month, self.day)
+        year = str(datetime.now().year).zfill(4)
+        month = str(datetime.now().month).zfill(2)
+        day = str(datetime.now().day).zfill(2)
+        self.medium_name = 'initramfs-%s-%s%s%s' % (name, year, month, day)
         self.digest_name = '%s.DIGESTS' % self.medium_name
-        self.kernelname = 'kernel-%s-%s%s%s' % (name, self.year, self.month, self.day)
-        self.cd_name = '%s-%s%s%s.iso' % (name, self.year, self.month, self.day)
+        self.kernelname = 'kernel-%s-%s%s%s' % (name, year, month, day)
+        self.cd_name = '%s-%s%s%s.iso' % (name, year, month, day)
 
 
     def netbootit(self, do_cd=None, alt_name=None):
         """ TODO """
         if alt_name:
-            self.medium_name = 'initramfs-%s-%s%s%s' % (alt_name, self.year, self.month, self.day)
+            self.medium_name = 'initramfs-%s' % alt_name
             self.digest_name = '%s.DIGESTS' % self.medium_name
+            self.kernelname = 'kernel-%s' % alt_name
+            self.cd_name = '%s.iso' % alt_name
 
         # 1. Copy the kernel to the tmpdir directory.
         kernel_src = os.path.join(self.portage_configroot, 'boot/kernel')
