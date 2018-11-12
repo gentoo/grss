@@ -247,7 +247,7 @@ class Interpret(Daemon):
                 elif verb == 'netbootit':
                     # 'netbootit' can either be just a 'verb', 'verb obj' or 'verb obj obj'
                     if len(objs) == 2:
-                        semantic_action(_line, objs, 2, _nb.netbootit, objs[0], obj[1])
+                        semantic_action(_line, objs, 2, _nb.netbootit, objs[0], objs[1])
                     elif len(objs) == 1:
                         semantic_action(_line, objs, 1, _nb.netbootit, objs[0])
                     else:
