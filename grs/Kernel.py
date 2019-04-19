@@ -67,10 +67,15 @@ class Kernel():
             pkg_name = flavor + '-sources-' + vanilla_version + '-' + revision
         except AttributeError:
             # Or the verison is of the form '4.0.6-hardened' with one -
-            _match = re.search(r'(\S+?)-(\S+)', gentoo_version)
-            vanilla_version = _match.group(1)
-            flavor = _match.group(2)
-            pkg_name = flavor + '-sources-' + vanilla_version
+            try:
+                _match = re.search(r'(\S+?)-(\S+)', gentoo_version)
+                vanilla_version = _match.group(1)
+                flavor = _match.group(2)
+                pkg_name = flavor + '-sources-' + vanilla_version
+            except AttributeError:
+                # Finally the verison is of the form '4.0.6' with no -
+                vanilla_version = gentoo_version
+                pkg_name = 'vanilla-sources-' + vanilla_version
         pkg_name = '=sys-kernel/' + pkg_name
         return (gentoo_version, pkg_name, has_modules)
 
