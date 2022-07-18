@@ -35,6 +35,7 @@ class MountDirectories():
             {'dev/shm' : ('tmpfs', 'shm')},
             'proc',
             'sys',
+            {'run' : ('tmpfs', 'none')},
             [portage, 'var/db/repos/gentoo'],
             [package, 'var/cache/binpkgs']
         ]
