@@ -34,13 +34,13 @@ if __name__ == "__main__":
     open(empty_file, 'a').close()
 
     configroot = '/tmp/test-mountdirectories'
-    directories = [ 'dev', 'dev/pts', 'dev/shm', 'proc', 'sys', 'usr/portage', 'usr/portage/packages' ]
+    directories = [ 'dev', 'dev/pts', 'dev/shm', 'proc', 'sys', 'var/db/repos/gentoo', 'var/cache/binpkgs' ]
     for d in directories:
         try:
             os.makedirs(os.path.join(configroot, d))
         except FileExistsError:
             pass
-    alt_empty_file = os.path.join(configroot, 'usr/portage/packages/empty')
+    alt_empty_file = os.path.join(configroot, 'var/cache/binpkgs/empty')
 
     md = MountDirectories(portage_configroot=configroot, package=package, logfile='/dev/null')
 
@@ -54,13 +54,13 @@ if __name__ == "__main__":
     assert(some_mounted == True)
     assert(all_mounted == True)
 
-    # /tmp/test-package/aaa and /tmp/test-mountdirectories/usr/portage/packages/empty exist
+    # /tmp/test-package/aaa and /tmp/test-mountdirectories/var/cache/binpkgs/empty exist
     assert(os.path.isfile(alt_empty_file) == True)
     Execute('umount --force %s' % os.path.dirname(alt_empty_file))
     some_mounted, all_mounted = md.are_mounted()
     assert(some_mounted == True)
     assert(all_mounted == False)
-    # /tmp/test-mountdirectories/usr/portage/packages/empty doesn't exist anymore
+    # /tmp/test-mountdirectories/var/cache/binpkgs/empty doesn't exist anymore
     assert(os.path.isfile(alt_empty_file) == False)
 
     assert(md.ismounted(package) == False)

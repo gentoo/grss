@@ -35,8 +35,8 @@ class MountDirectories():
             {'dev/shm' : ('tmpfs', 'shm')},
             'proc',
             'sys',
-            [portage, 'usr/portage'],
-            [package, 'usr/portage/packages']
+            [portage, 'var/db/repos/gentoo'],
+            [package, 'var/cache/binpkgs']
         ]
         # Once initiated, we only work with one portage_configroot
         self.portage_configroot = portage_configroot

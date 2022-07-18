@@ -92,7 +92,7 @@ def install_kernel(version = 'latest', logfile = CONST.LOGFILE):
 
     # Download the linux-image tarball to packages/linux-image
     request = urllib.request.urlopen('%s/%s/%s' % (baseurl, 'linux-images', kernel))
-    package = '/usr/portage/packages/linux-images'
+    package = '/var/cache/binpkgs/linux-images'
     os.makedirs(package, mode=0o755, exist_ok=True)
     kpath = os.path.join(package, kernel)
     with open(kpath, 'wb') as f:

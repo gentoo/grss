@@ -63,7 +63,7 @@ class ISOIt(HashIt):
 
         # Emerge busybox.
         os.symlink(
-            '/usr/portage/profiles/hardened/linux/amd64',
+            '/var/db/repos/gentoo/profiles/default/linux/amd64/17.1/hardened',
             makeprofile_path
         )
         cmd = 'emerge --nodeps -1q busybox'
