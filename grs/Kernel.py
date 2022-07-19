@@ -131,12 +131,12 @@ class Kernel():
         cmd += '--makeopts=-j9 '
         cmd += '--symlink '
         cmd += '--no-mountboot '
-        cmd += '--kernel-config=%s ' % self.kernel_config
-        cmd += '--kerneldir=%s '     % kernel_source
-        cmd += '--bootdir=%s '       % boot_dir
-        cmd += '--module-prefix=%s ' % image_dir
-        cmd += '--modprobedir=%s '   % modprobe_dir
-        cmd += '--arch-override=%s ' % arch
+        cmd += '--kernel-config=%s '         % self.kernel_config
+        cmd += '--kerneldir=%s '             % kernel_source
+        cmd += '--bootdir=%s '               % boot_dir
+        cmd += '--kernel-modules-prefix=%s ' % image_dir
+        cmd += '--modprobedir=%s '           % modprobe_dir
+        cmd += '--arch-override=%s '         % arch
         if os.path.isfile(self.busybox_config):
             cmd += '--busybox-config=%s ' % self.busybox_config
         if os.path.isfile(self.genkernel_config):
