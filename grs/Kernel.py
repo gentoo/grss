@@ -136,7 +136,6 @@ class Kernel():
         cmd += '--bootdir=%s '               % boot_dir
         cmd += '--kernel-modules-prefix=%s ' % image_dir
         cmd += '--modprobedir=%s '           % modprobe_dir
-        cmd += '--arch-override=%s '         % arch
         if os.path.isfile(self.busybox_config):
             cmd += '--busybox-config=%s ' % self.busybox_config
         if os.path.isfile(self.genkernel_config):
