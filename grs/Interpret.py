@@ -120,7 +120,7 @@ class Interpret(Daemon):
         workdir = CONST.workdirs[self.run_number]
         package = CONST.packages[self.run_number]
         portage = CONST.portages[self.run_number]
-        distfiles = CONST.distfiles[self.run_number]
+        distfiles = CONST.distfiless[self.run_number]
         kernelroot = CONST.kernelroots[self.run_number]
         portage_configroot = CONST.portage_configroots[self.run_number]
 
