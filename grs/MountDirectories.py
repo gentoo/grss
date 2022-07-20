@@ -27,7 +27,7 @@ class MountDirectories():
     """
 
     def __init__(self, portage_configroot=CONST.PORTAGE_CONFIGROOT, \
-            package=CONST.PACKAGE, portage=CONST.PORTAGE, logfile=CONST.LOGFILE):
+            package=CONST.PACKAGE, portage=CONST.PORTAGE, distfiles=CONST.DISTFILES, logfile=CONST.LOGFILE):
         # The order is respected.  Note that 'dev' needs to be mounted beore 'dev/pts'.
         self.directories = [
             'dev',
@@ -37,12 +37,14 @@ class MountDirectories():
             'sys',
             {'run' : ('tmpfs', 'none')},
             [portage, 'var/db/repos/gentoo'],
-            [package, 'var/cache/binpkgs']
+            [package, 'var/cache/binpkgs'],
+            [distfiles, 'var/cache/distfiles']
         ]
         # Once initiated, we only work with one portage_configroot
         self.portage_configroot = portage_configroot
-        self.package = package
         self.portage = portage
+        self.package = package
+        self.distfiles = distfiles
         self.logfile = logfile
         # We need to umount in the reverse order
         self.rev_directories = deepcopy(self.directories)

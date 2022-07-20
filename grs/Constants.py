@@ -88,6 +88,7 @@ class Constants():
             'workdir'             : '/var/tmp/grs/%s/work',
             'package'             : '/var/tmp/grs/%s/packages',
             'portage'             : '/var/db/repos/gentoo',
+            'distfiles'           : '/var/cache/distfiles',
             'kernelroot'          : '/var/tmp/grs/%s/kernel',
             'portage_configroot'  : '/var/tmp/grs/%s/system',
             'pidfile'             : '/run/grs-%s.pid'
@@ -163,6 +164,7 @@ CONST.TMPDIR = '/var/tmp/grs'
 CONST.WORKDIR = '/var/tmp/grs/work'
 CONST.PACKAGE = '/var/tmp/grs/package'
 CONST.PORTAGE = '/var/db/repos/gentoo'
+CONST.DISTFILES = '/var/cache/distfiles'
 CONST.KERNELROOT = '/var/tmp/grs/kernel'
 CONST.PORTAGE_CONFIGROOT = '/var/tmp/grs/system'
 CONST.PIDFILE = '/run/grs.pid'

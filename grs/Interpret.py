@@ -120,6 +120,7 @@ class Interpret(Daemon):
         workdir = CONST.workdirs[self.run_number]
         package = CONST.packages[self.run_number]
         portage = CONST.portages[self.run_number]
+        distfiles = CONST.distfiles[self.run_number]
         kernelroot = CONST.kernelroots[self.run_number]
         portage_configroot = CONST.portage_configroots[self.run_number]
 
@@ -129,7 +130,7 @@ class Interpret(Daemon):
         _lo = Log(logfile)
         _sy = Synchronize(repo_uri, name, libdir, logfile)
         _se = Seed(stage_uri, tmpdir, portage_configroot, package, logfile)
-        _md = MountDirectories(portage_configroot, package, portage, logfile)
+        _md = MountDirectories(portage_configroot, package, portage, distfiles, logfile)
         _po = Populate(libdir, workdir, portage_configroot, logfile)
         _ru = RunScript(libdir, portage_configroot, logfile)
         _pc = PivotChroot(tmpdir, portage_configroot, logfile)
