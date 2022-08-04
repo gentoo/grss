@@ -162,7 +162,7 @@ def main():
 
     do_install_kernel = False
     if len(opts) == 0:
-        args = ['-1', '-g', '-K', '-u', '-D', '-q']
+        args = ['-1', '-g', '-K', '-u', '-D', '-q', '--with-bdeps=y']
         if len(myfiles) == 0:
             myfiles = ['@world']
         args.extend(myfiles)
@@ -171,13 +171,13 @@ def main():
             if o == '-h':
                 usage(rc=0)
             elif o == '-r':
-                args = ['-1', '-g', '-K', '-D', '-q']
+                args = ['-1', '-g', '-K', '-D', '-q', '--with-bdeps=y']
                 args.extend(myfiles)
             elif o == '-d':
                 args = ['-C', '-q']
                 args.extend(myfiles)
             elif o == '-D':
-                args = ['-g', '-e', '-f', '-q', '@world']
+                args = ['-g', '-e', '-f', '-q', '--with-bdeps=y', '@world']
             elif o == '-k':
                 version = a
                 do_install_kernel = True
